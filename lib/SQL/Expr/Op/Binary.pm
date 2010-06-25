@@ -84,6 +84,7 @@ sub op { return 'LIKE'; }
 sub _BUILD {
     my ($self, $a, $b) = @_;
     $self->{a} = $a;
+    # allow null values here
     $self->{b} = $b;
 }
 
@@ -95,6 +96,18 @@ sub _str {
         $b = '"'.$b.'"';
     }
     return sprintf("%s %s %s", $a, $self->op($a,$b), $b); 
+}
+
+
+package SQL::Expr::Op::In;
+use base qw/SQL::Expr::Op::Binary/;
+
+sub op { return 'IN'; }
+
+sub _BUILD {
+    my ($self, $a, $b) = @_;
+    $self->{a} = $a;
+    $self->{b} = $b;
 }
 
 

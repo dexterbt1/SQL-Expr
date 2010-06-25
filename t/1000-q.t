@@ -49,21 +49,5 @@ is $stmt, 'id >= ?';
 is scalar(@bind), 1;
 is $bind[0], 123;
 
-# LIKE
-$e = Literal('name')->like();
-is "$e", 'name LIKE NULL';
-($stmt, @bind) = $e->compile;
-is $stmt, 'name LIKE NULL';
-is scalar(@bind), 0;
-
-$e = Literal('name')->like("John%");
-is "$e", 'name LIKE "John%"';
-($stmt, @bind) = $e->compile;
-is $stmt, 'name LIKE ?';
-is scalar(@bind), 1;
-is $bind[0], 'John%';
-
-=cut
-
     
 __END__

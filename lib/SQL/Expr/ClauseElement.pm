@@ -4,12 +4,6 @@ use Carp ();
 
 use overload 
     '""'        => '_str',
-    "=="        => '_eq',
-    "!="        => '_neq',
-    ">="        => '_gte',
-    ">"         => '_gt',
-    "<="        => '_lte',
-    "<"         => '_lt',
     ;
 
 sub new {
@@ -27,16 +21,7 @@ sub compile {
 sub stmt { Carp::confess("Unimplemented"); }
 sub bind { Carp::confess("Unimplemented"); }
 
-
 sub _str { Carp::confess("Unimplemented"); }
-
-
-sub _eq     { Carp::confess("Unimplemented"); }
-sub _neq    { Carp::confess("Unimplemented"); }
-sub _gte    { Carp::confess("Unimplemented"); }
-sub _gt     { Carp::confess("Unimplemented"); }
-sub _lte    { Carp::confess("Unimplemented"); }
-sub _lt     { Carp::confess("Unimplemented"); }
 
 1;
 

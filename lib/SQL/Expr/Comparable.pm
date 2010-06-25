@@ -5,6 +5,15 @@ use Scalar::Util qw/blessed/;
 use SQL::Expr::Op;
 use base qw/SQL::Expr::ClauseElement/;
 
+use overload
+    "=="        => '_eq',
+    "!="        => '_neq',
+    ">="        => '_gte',
+    ">"         => '_gt',
+    "<="        => '_lte',
+    "<"         => '_lt',
+    ;
+
 sub _binary_op { 
     my ($self, $op_class, $v, $reverse) = @_;
     my ($a, $b) = ($self, $v);
@@ -22,12 +31,7 @@ sub _neq { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Neq', @_ ); }
 sub _gte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Gte', @_ ); }
 sub _gt  { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Gt', @_ ); }
 sub _lte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Lte', @_ ); }
-sub _lte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Lte', @_ ); }
-
-sub like { 
-    my $self = shift @_;
-    $self->_binary_op( 'SQL::Expr::Op::Like', @_ );
-}
+sub _lt  { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Lt', @_ ); }
 
 1;
 

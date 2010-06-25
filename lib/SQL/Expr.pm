@@ -7,6 +7,8 @@ use SQL::Expr::Literal;
 use SQL::Expr::Conjunction;
 use SQL::Expr::Null;
 
+use SQL::Expr::ColumnElement;
+
 use Sub::Exporter -setup => {
     exports => [ qw/
         Literal 
@@ -14,6 +16,8 @@ use Sub::Exporter -setup => {
         Not_
         And_
         Or_
+
+        ColumnElement
         / ],
 };
 
@@ -38,6 +42,11 @@ sub Or_ {
     }
     return;
 }
+
+# ==========================
+
+sub ColumnElement { SQL::Expr::ColumnElement->new(@_); }
+
 
 1;
 
