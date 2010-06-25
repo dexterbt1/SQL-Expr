@@ -17,8 +17,11 @@ sub _binary_op {
     return $op_class->new( $a, $b );
 }
 
-sub _eq { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Eq', @_ ); }
+sub _eq  { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Eq', @_ ); }
 sub _gte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Gte', @_ ); }
+sub _gt  { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Gt', @_ ); }
+sub _lte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Lte', @_ ); }
+sub _lte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Lte', @_ ); }
 
 1;
 

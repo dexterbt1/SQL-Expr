@@ -37,5 +37,15 @@ is scalar(@bind), 0;
 $e = (Literal('id') == Null()); # readable
 is "$e", 'id IS NULL';
 
+# >=
+$e = (Literal('id') >= 123);
+is "$e", 'id >= 123';
+($stmt, @bind) = $e->compile;
+is $stmt, 'id >= ?';
+is scalar(@bind), 1;
+is $bind[0], 123;
+
+
+
     
 __END__

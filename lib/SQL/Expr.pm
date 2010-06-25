@@ -10,11 +10,16 @@ use Sub::Exporter -setup => {
     exports => [ qw/
         Literal 
         Null
+        Not_
         / ],
 };
 
 sub Literal { SQL::Expr::Literal->new(@_); }
+
 sub Null { SQL::Expr::Null->new; }
+
+# unary 
+sub Not_ { SQL::Expr::Op::Unary::Not->new(@_); }
 
 1;
 

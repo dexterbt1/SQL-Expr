@@ -26,7 +26,9 @@ sub stmt {
 
 sub bind {
     my ($self) = @_;
-    my @b = ($self->{a}->bind, $self->{b}->bind);
+    my @b = ();
+    push @b, $self->{a}->bind;
+    push @b, $self->{b}->bind;
     return @b;
 }
 
@@ -52,6 +54,17 @@ package SQL::Expr::Op::Gte;
 use base qw/SQL::Expr::Op::Binary/;
 sub op { '>=' }
 
+package SQL::Expr::Op::Gt;
+use base qw/SQL::Expr::Op::Binary/;
+sub op { '>' }
+
+package SQL::Expr::Op::Lte;
+use base qw/SQL::Expr::Op::Binary/;
+sub op { '<=' }
+
+package SQL::Expr::Op::Lt;
+use base qw/SQL::Expr::Op::Binary/;
+sub op { '<' }
 1;
 
 __END__
