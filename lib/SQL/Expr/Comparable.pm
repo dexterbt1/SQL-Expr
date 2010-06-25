@@ -18,10 +18,16 @@ sub _binary_op {
 }
 
 sub _eq  { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Eq', @_ ); }
+sub _neq { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Neq', @_ ); }
 sub _gte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Gte', @_ ); }
 sub _gt  { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Gt', @_ ); }
 sub _lte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Lte', @_ ); }
 sub _lte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Lte', @_ ); }
+
+sub like { 
+    my $self = shift @_;
+    $self->_binary_op( 'SQL::Expr::Op::Like', @_ );
+}
 
 1;
 

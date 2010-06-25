@@ -13,7 +13,7 @@ sub _BUILD {
 sub stmt {
     my ($self) = @_;
     my $xp = $self->{xp};
-    my $stmt = sprintf('%s ( %s )', 
+    my $stmt = sprintf('%s( %s )', 
         $self->op($xp),
         $xp->stmt,
     );
@@ -30,7 +30,7 @@ sub bind {
 sub _str { 
     my ($self) = @_;
     my $xp = $self->{xp};
-    return sprintf("%s ( %s )", $self->op($xp), $xp); 
+    return sprintf("%s( %s )", $self->op($xp), $xp); 
 }
 
 sub op { Carp::confess("Unimplemented"); }

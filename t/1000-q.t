@@ -1,5 +1,6 @@
 use strict;
 use Test::More qw/no_plan/;
+use Test::Exception;
 use SQL::Expr qw/Literal Null/;
 
 my $e;
@@ -7,6 +8,9 @@ my ($stmt, @bind);
 
 $e = Literal('id');
 is "$e", 'id';
+($stmt, @bind) = $e->compile;
+is $stmt, 'id';
+is scalar(@bind), 0;
 
 $e = (Literal('id') == 2);
 isa_ok $e, 'SQL::Expr::Op::Binary';
@@ -45,7 +49,21 @@ is $stmt, 'id >= ?';
 is scalar(@bind), 1;
 is $bind[0], 123;
 
+# LIKE
+$e = Literal('name')->like();
+is "$e", 'name LIKE NULL';
+($stmt, @bind) = $e->compile;
+is $stmt, 'name LIKE NULL';
+is scalar(@bind), 0;
 
+$e = Literal('name')->like("John%");
+is "$e", 'name LIKE "John%"';
+($stmt, @bind) = $e->compile;
+is $stmt, 'name LIKE ?';
+is scalar(@bind), 1;
+is $bind[0], 'John%';
+
+=cut
 
     
 __END__

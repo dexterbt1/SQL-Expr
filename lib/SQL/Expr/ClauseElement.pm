@@ -5,6 +5,7 @@ use Carp ();
 use overload 
     '""'        => '_str',
     "=="        => '_eq',
+    "!="        => '_neq',
     ">="        => '_gte',
     ">"         => '_gt',
     "<="        => '_lte',
@@ -31,6 +32,7 @@ sub _str { Carp::confess("Unimplemented"); }
 
 
 sub _eq     { Carp::confess("Unimplemented"); }
+sub _neq    { Carp::confess("Unimplemented"); }
 sub _gte    { Carp::confess("Unimplemented"); }
 sub _gt     { Carp::confess("Unimplemented"); }
 sub _lte    { Carp::confess("Unimplemented"); }

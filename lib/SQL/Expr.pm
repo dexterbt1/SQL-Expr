@@ -4,6 +4,7 @@ use SQL::Expr::ClauseElement;
 use SQL::Expr::Comparable;
 use SQL::Expr::Boundable;
 use SQL::Expr::Literal;
+use SQL::Expr::Conjunction;
 use SQL::Expr::Null;
 
 use Sub::Exporter -setup => {
@@ -11,6 +12,8 @@ use Sub::Exporter -setup => {
         Literal 
         Null
         Not_
+        And_
+        Or_
         / ],
 };
 
@@ -20,6 +23,21 @@ sub Null { SQL::Expr::Null->new; }
 
 # unary 
 sub Not_ { SQL::Expr::Op::Unary::Not->new(@_); }
+
+# conjuctions
+sub And_ { 
+    if (scalar @_ > 0) {
+        return SQL::Expr::Op::Conjunction::And->new(@_);
+    }
+    return;
+}
+
+sub Or_ { 
+    if (scalar @_ > 0) {
+        return SQL::Expr::Op::Conjunction::Or->new(@_);
+    }
+    return;
+}
 
 1;
 
