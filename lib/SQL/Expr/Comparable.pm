@@ -12,6 +12,8 @@ use overload
     ">"         => '_gt',
     "<="        => '_lte',
     "<"         => '_lt',
+    '&'         => '_bit_and',
+    '|'         => '_bit_or',
     ;
 
 sub _binary_op { 
@@ -32,6 +34,8 @@ sub _gte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Gte', @_ ); }
 sub _gt  { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Gt', @_ ); }
 sub _lte { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Lte', @_ ); }
 sub _lt  { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Lt', @_ ); }
+sub _bit_and { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Conjunction::And', @_ ); }
+sub _bit_or { my $self = shift; $self->_binary_op( 'SQL::Expr::Op::Conjunction::Or', @_ ); }
 
 1;
 

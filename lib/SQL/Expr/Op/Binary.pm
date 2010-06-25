@@ -2,7 +2,7 @@ package SQL::Expr::Op::Binary;
 use strict;
 use Carp ();
 use Scalar::Util qw/blessed/;
-use base qw/SQL::Expr::ClauseElement/;
+use base qw/SQL::Expr::Comparable/;
 
 sub _BUILD {
     my ($self, $a, $b) = @_;
