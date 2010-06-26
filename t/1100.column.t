@@ -1,13 +1,13 @@
 use strict;
 use Test::More qw/no_plan/;
 use Test::Exception;
-use SQL::Expr qw/ColumnElement Literal/;
+use SQL::Expr '-all';
 
 my $c;
 my $e;
 my ($stmt, @bind);
 
-$c = ColumnElement('id');
+$c = Column('id');
 is "$c", 'id';
 ($stmt, @bind) = $c->compile;
 is $stmt, 'id';
@@ -35,15 +35,15 @@ dies_ok {
 
 # LIKE
 dies_ok {
-    $e = ColumnElement('name')->like();
+    $e = Column('name')->like();
 } 'col->like()';
-$e = ColumnElement('name')->like(undef);
+$e = Column('name')->like(undef);
 is "$e", 'name LIKE NULL';
 ($stmt, @bind) = $e->compile;
 is $stmt, 'name LIKE NULL';
 is scalar(@bind), 0;
 
-$e = ColumnElement('name')->like("John%");
+$e = Column('name')->like("John%");
 is "$e", 'name LIKE "John%"';
 ($stmt, @bind) = $e->compile;
 is $stmt, 'name LIKE ?';
@@ -53,16 +53,16 @@ is $bind[0], 'John%';
 # IN
 
 dies_ok {
-    $e = ColumnElement('name')->in();
+    $e = Column('name')->in();
 } 'col->in()';
 
-$e = ColumnElement('id')->in(undef);
+$e = Column('id')->in(undef);
 is "$e", 'id IN ( NULL )';
 ($stmt, @bind) = $e->compile;
 is $stmt, 'id IN ( NULL )';
 is scalar(@bind), 0;
 
-$e = ColumnElement('id')->in( 1, 2, 3 );
+$e = Column('id')->in( 1, 2, 3 );
 is "$e", 'id IN ( 1, 2, 3 )';
 ($stmt, @bind) = $e->compile;
 is $stmt, 'id IN ( 1, 2, 3 )';

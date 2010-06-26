@@ -49,9 +49,6 @@ my @test = (
     [ Lte_(1, Literal('id')), '? <= id', 1 ],
     [ Like_("John%", Literal('name')), '? LIKE name', 'John%' ],
 
-    # unary
-    #[ Not_(), '' ]
-
 );
 
 foreach (@test) {

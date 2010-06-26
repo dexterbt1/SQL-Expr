@@ -61,7 +61,8 @@ is $table->c->id->{name}, 'id';
 isa_ok $table->c->name, 'SQL::Expr::Column';
 is $table->c->name->{name}, 'name';
 
-
+# table inner_join
+# InnerJoin
 
 =pod
 
@@ -72,7 +73,7 @@ my $sel = SQL::Expr::Select->new(
     ],
 );
 
-$session->objects('Person')
+$session->query('Person')
         ->filter( Person->name == "Dexter" )
         
 Music::Artist->artistid->in( 1, 2, 3 );

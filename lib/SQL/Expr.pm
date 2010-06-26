@@ -7,39 +7,35 @@ use SQL::Expr::Literal;
 use SQL::Expr::Conjunction;
 use SQL::Expr::Null;
 
-use SQL::Expr::ColumnElement;
+use SQL::Expr::Table;
 
 use Sub::Exporter -setup => {
-    exports => [ qw/
-        Literal 
-        Null
-        Not_
-
-        Eq_
-        Neq_
-        Gt_
-        Gte_
-        Lt_
-        Lte_
-        Like_
-
-        In_ 
-
-        And_
-        Or_
-
-        ColumnElement
-        / ],
+    exports => [ qw/ 
+            Literal Null
+            Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_
+            Column
+            /,
+            ],
+    groups => {
+            'types'     => [ qw/ Literal Null / ],
+            'operators' => [ qw/ Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_ /],
+            'schema'    => [ qw/ Column / ]
+            },
 };
 
-sub Literal { SQL::Expr::Literal->new(@_); }
 
+# ========================================
+
+# types
+# -----
+sub Literal { SQL::Expr::Literal->new(@_); }
 sub Null { SQL::Expr::Null->new; }
 
-# unary 
-sub Not_ { 
-    SQL::Expr::Op::Unary::Not->new(@_); 
-}
+# operators
+# ---------
+
+# unary
+sub Not_ { SQL::Expr::Op::Unary::Not->new(@_); }
 
 # binary
 sub Eq_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Eq', @_); }
@@ -53,20 +49,15 @@ sub Like_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Like', @_); }
 sub In_ { SQL::Expr::Op::In->new(@_); }
 
 # conjuctions
-sub And_ { 
-    return SQL::Expr::Op::Conjunction::And->new(@_);
-}
-
-sub Or_ { 
-    return SQL::Expr::Op::Conjunction::Or->new(@_);
-}
+sub And_ { SQL::Expr::Op::Conjunction::And->new(@_); }
+sub Or_ { SQL::Expr::Op::Conjunction::Or->new(@_); }
 
 # ==========================
 
-sub ColumnElement { 
-    my $name = shift @_;
-    SQL::Expr::ColumnElement->new( -name => $name ); 
-}
+# schema
+# ------
+sub Column { SQL::Expr::Column->new( -name => shift @_, @_ ); }
+
 
 
 1;
