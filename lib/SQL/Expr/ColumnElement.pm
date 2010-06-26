@@ -5,7 +5,9 @@ use SQL::Expr::Alias;
 use base qw/SQL::Expr::Comparable/;
 
 sub _BUILD {
-    my ($self, $name) = @_;
+    my $self = shift @_;
+    $self->SUPER::_BUILD( @_ );
+    my $name = $self->{name};
     (defined($name) && length($name)>0)
         or Carp::confess("ColumnElement expects defined and valid name");
     $self->{name} = $name;

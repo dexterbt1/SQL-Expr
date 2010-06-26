@@ -45,7 +45,10 @@ sub Or_ {
 
 # ==========================
 
-sub ColumnElement { SQL::Expr::ColumnElement->new(@_); }
+sub ColumnElement { 
+    my $name = shift @_;
+    SQL::Expr::ColumnElement->new( -name => $name ); 
+}
 
 
 1;

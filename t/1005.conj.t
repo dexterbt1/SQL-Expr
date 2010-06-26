@@ -51,7 +51,7 @@ is $e->stmt, "( id IS NOT NULL ) AND NOT( ( x > ? ) OR ( y <= ? ) )";
 is scalar(@bind), 2;
 
 
-# bitwise & as the AND (workaround)
+# bitwise & as the AND workaround
 $e = (Literal('a') < 123) & (Literal('a') != Null);
 
 is "$e", "( a < 123 ) AND ( a IS NOT NULL )";
@@ -60,7 +60,7 @@ is $e->stmt, "( a < ? ) AND ( a IS NOT NULL )";
 is scalar(@bind), 1;
 
 
-# bitwise & as the AND (workaround)
+# bitwise | as the OR workaround
 $e = (Literal('a') < 123) | (Literal('a') != Null);
 
 is "$e", "( a < 123 ) OR ( a IS NOT NULL )";

@@ -13,6 +13,19 @@ sub new {
     return $self;
 }
 
+sub _BUILD {
+    my ($self, @args) = @_;
+    while (my $a = shift @args) {
+        # skip references and object args
+        next if (ref $a);
+        if ($a =~ /^-(\w+)$/) {
+            my $k = $1;
+            my $v = shift @args;
+            $self->{$k} = $v;
+        }
+    }
+}
+
 sub compile { 
     my ($self) = @_;
     return ($self->stmt, $self->bind);
