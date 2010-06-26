@@ -32,6 +32,9 @@ dies_ok {
 lives_ok {
     $table->add_column( SQL::Expr::Column->new( -name => 'id' ) );
 } 'valid column name';
+dies_ok {
+    $table->add_column( SQL::Expr::Column->new( -name => 'id' ) );
+} 'dup column name';
 @columns = $table->columns;
 is scalar(@columns), 1;
 
@@ -49,14 +52,14 @@ is $table->name, 'person';
 @columns = $table->columns;
 is scalar(@columns), 2;
 
-# TODO: next step
-# dynamic collection object for acccessing the table column by name
-# AUTOLOAD?
-#
-# $table->c->id
-# $table->c->name
-#
-##is_deeply $table->c
+# test column name accessors
+dies_ok {
+    isa_ok $table->c->yay, 'SQL::Expr::Column';
+} 'unknown column accessed via colaccessor';
+isa_ok $table->c->id, 'SQL::Expr::Column';
+is $table->c->id->{name}, 'id';
+isa_ok $table->c->name, 'SQL::Expr::Column';
+is $table->c->name->{name}, 'name';
 
 
 
