@@ -28,8 +28,15 @@ sub _BUILD {
     my @out= ();
     foreach my $i (@in) {
         my $o = $i;
-        if (not(blessed $i)) {
-            $o = SQL::Expr::Literal->new($i);
+        if (not defined $i) {
+            $o = SQL::Expr::Null->new;
+        }
+        if (not(blessed $o)) {
+            my $unb = $o;
+            if (ref($o) eq 'SCALAR') {
+                $unb = $$o;
+            }
+            $o = SQL::Expr::Literal->new($unb);
         }
         push @out, $o;
     }

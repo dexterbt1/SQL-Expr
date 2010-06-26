@@ -1,12 +1,22 @@
 package SQL::Expr::Op::Conjunction;
 use strict;
 use Carp ();
+use Scalar::Util qw/blessed/;
 use base qw/SQL::Expr::ClauseElement/;
 
 sub _BUILD {
     my ($self, @clauses) = @_;
     $self->{c} = [ ];
     foreach my $c (@clauses) {
+        if (not defined $c) {
+            $c = SQL::Expr::Null->new;
+        }
+        elsif (ref($c) eq 'SCALAR') {
+            $c = SQL::Expr::Literal->new($$c);
+        }
+        elsif (not blessed $c) {
+            $c = SQL::Expr::Boundable->new($c);
+        }
         push @{$self->{c}}, $c;
     }
 }

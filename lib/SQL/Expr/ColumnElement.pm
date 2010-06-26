@@ -33,19 +33,11 @@ sub as {
 }
 
 sub like { 
-    my $self = shift @_;
-    $self->_binary_op( 'SQL::Expr::Op::Like', @_ );
+    SQL::Expr::Comparable::_binary_op( 0, 'SQL::Expr::Op::Like', @_ );
 }
 
 sub in {
-    my $self = shift @_;
-    if (scalar @_ > 0) {
-        return $self->_binary_op( 
-            'SQL::Expr::Op::In', 
-            SQL::Expr::LiteralGroup->new(@_),
-        );
-    }
-    return;
+    SQL::Expr::Op::In->new(@_);
 }
 
 

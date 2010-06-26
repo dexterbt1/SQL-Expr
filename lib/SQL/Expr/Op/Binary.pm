@@ -101,13 +101,28 @@ sub _str {
 
 package SQL::Expr::Op::In;
 use base qw/SQL::Expr::Op::Binary/;
+use Scalar::Util qw/blessed/;
+use Carp ();
 
 sub op { return 'IN'; }
 
 sub _BUILD {
-    my ($self, $a, $b) = @_;
+    my $self = shift;
+    (@_ > 1)
+        or Carp::croak(ref($self)." requires 1 or params");
+    my $a = shift;
+    # ---------- a
+    if (not defined $a) {
+        $a = SQL::Expr::Null->new;
+    }
+    elsif (ref($a) eq 'SCALAR') {
+        $a = SQL::Expr::Literal->new($$a);
+    }
+    elsif (not blessed $a) {
+        $a = SQL::Expr::Boundable->new($a);
+    }
     $self->{a} = $a;
-    $self->{b} = $b;
+    $self->{b} = SQL::Expr::LiteralGroup->new(@_);
 }
 
 

@@ -14,6 +14,17 @@ use Sub::Exporter -setup => {
         Literal 
         Null
         Not_
+
+        Eq_
+        Neq_
+        Gt_
+        Gte_
+        Lt_
+        Lte_
+        Like_
+
+        In_ 
+
         And_
         Or_
 
@@ -26,21 +37,28 @@ sub Literal { SQL::Expr::Literal->new(@_); }
 sub Null { SQL::Expr::Null->new; }
 
 # unary 
-sub Not_ { SQL::Expr::Op::Unary::Not->new(@_); }
+sub Not_ { 
+    SQL::Expr::Op::Unary::Not->new(@_); 
+}
+
+# binary
+sub Eq_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Eq', @_); }
+sub Neq_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Neq', @_); }
+sub Gt_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Gt', @_); }
+sub Gte_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Gte', @_); }
+sub Lt_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Lt', @_); }
+sub Lte_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Lte', @_); }
+sub Like_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Like', @_); }
+
+sub In_ { SQL::Expr::Op::In->new(@_); }
 
 # conjuctions
 sub And_ { 
-    if (scalar @_ > 0) {
-        return SQL::Expr::Op::Conjunction::And->new(@_);
-    }
-    return;
+    return SQL::Expr::Op::Conjunction::And->new(@_);
 }
 
 sub Or_ { 
-    if (scalar @_ > 0) {
-        return SQL::Expr::Op::Conjunction::Or->new(@_);
-    }
-    return;
+    return SQL::Expr::Op::Conjunction::Or->new(@_);
 }
 
 # ==========================

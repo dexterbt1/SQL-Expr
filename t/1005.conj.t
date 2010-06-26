@@ -7,7 +7,7 @@ my $e;
 my ($stmt, @bind);
 
 $e = And_();
-is $e, undef;
+is "$e", '';
 
 $e = And_( Literal('1') );
 is "$e", '( 1 )';

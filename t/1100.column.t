@@ -34,7 +34,10 @@ dies_ok {
 } 'cannot compare alias';
 
 # LIKE
-$e = ColumnElement('name')->like();
+dies_ok {
+    $e = ColumnElement('name')->like();
+} 'col->like()';
+$e = ColumnElement('name')->like(undef);
 is "$e", 'name LIKE NULL';
 ($stmt, @bind) = $e->compile;
 is $stmt, 'name LIKE NULL';
@@ -49,8 +52,15 @@ is $bind[0], 'John%';
 
 # IN
 
-$e = ColumnElement('name')->in();
-is $e, undef;
+dies_ok {
+    $e = ColumnElement('name')->in();
+} 'col->in()';
+
+$e = ColumnElement('id')->in(undef);
+is "$e", 'id IN ( NULL )';
+($stmt, @bind) = $e->compile;
+is $stmt, 'id IN ( NULL )';
+is scalar(@bind), 0;
 
 $e = ColumnElement('id')->in( 1, 2, 3 );
 is "$e", 'id IN ( 1, 2, 3 )';
