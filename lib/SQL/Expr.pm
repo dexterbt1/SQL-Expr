@@ -1,5 +1,8 @@
 package SQL::Expr;
 use strict;
+
+our $VERSION = 0.01;
+
 use SQL::Expr::ClauseElement;
 use SQL::Expr::Comparable;
 use SQL::Expr::Boundable;
@@ -63,3 +66,9 @@ sub Column { SQL::Expr::Column->new( -name => shift @_, @_ ); }
 1;
 
 __END__
+
+=head1 NAME
+
+SQL::Expr - object-oriented SQL abstraction and generation toolkit
+
+=cut
