@@ -5,27 +5,33 @@ our $VERSION = 0.01;
 
 use SQL::Expr::ClauseElement;
 use SQL::Expr::Comparable;
-use SQL::Expr::Boundable;
-use SQL::Expr::Literal;
-use SQL::Expr::Conjunction;
-use SQL::Expr::Null;
+
+use SQL::Expr::Op;
+
+use SQL::Expr::Type::Literal;
+use SQL::Expr::Type::Null;
+use SQL::Expr::Type::Boundable;
 
 use SQL::Expr::Schema::Table;
 use SQL::Expr::Schema::Column;
 
+use SQL::Expr::Q::Select;
+
 use Sub::Exporter -setup => {
     exports => [ qw/ 
-            Literal Null
+            Literal Null Boundable
             Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_
             Table Column
             Join
+            Select
             /,
             ],
     groups => {
-            'types'     => [ qw/ Literal Null / ],
+            'types'     => [ qw/ Literal Null Boundable / ],
             'operators' => [ qw/ Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_ /],
             'schema'    => [ qw/ Table Column / ],
-            'joins'     => [ qw/ Join / ]
+            'joins'     => [ qw/ Join / ],
+            'queries'   => [ qw/ Select / ]
             },
 };
 
@@ -33,8 +39,9 @@ use Sub::Exporter -setup => {
 # ========================================
 
 # types
-sub Literal { SQL::Expr::Literal->new(@_); }
-sub Null { SQL::Expr::Null->new; }
+sub Literal { SQL::Expr::Type::Literal->new(@_); }
+sub Null { SQL::Expr::Type::Null->new; }
+sub Boundable { SQL::Expr::Type::Boundable->new(@_); }
 
 # unary ops
 sub Not_ { SQL::Expr::Op::Unary::Not->new(@_); }
@@ -61,11 +68,15 @@ sub Or_ { SQL::Expr::Op::Conjunction::Or->new(@_); }
 sub Table { SQL::Expr::Schema::Table->new( -name => shift @_, -columns => shift @_ ); }
 sub Column { SQL::Expr::Schema::Column->new( -name => shift @_, @_ ); }
 
-# ==========================
-
 # joins
 sub Join { }
 
+# ==========================
+
+# queries
+sub Select { 
+    my $s = SQL::Expr::Q::Select->new( -from => shift @_ );
+}
 
 1;
 

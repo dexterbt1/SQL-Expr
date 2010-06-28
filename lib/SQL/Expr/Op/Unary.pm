@@ -11,7 +11,7 @@ sub _BUILD {
     my $a = shift @_;
     # ---------- a
     if (not defined $a) {
-        $a = SQL::Expr::Null->new;
+        $a = SQL::Expr::Type::Null->new;
     }
     (blessed($a) && $a->isa("SQL::Expr::ClauseElement"))
         or Carp::confess("Unary operator expects SQL::Expr::ClauseElement");

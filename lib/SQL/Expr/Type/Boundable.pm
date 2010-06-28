@@ -1,4 +1,4 @@
-package SQL::Expr::Boundable;
+package SQL::Expr::Type::Boundable;
 use strict;
 use Carp ();
 use base qw/SQL::Expr::Comparable/;

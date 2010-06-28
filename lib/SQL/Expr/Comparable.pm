@@ -2,6 +2,9 @@ package SQL::Expr::Comparable;
 use strict;
 use Carp ();
 use Scalar::Util qw/blessed/;
+use SQL::Expr::Type::Literal;
+use SQL::Expr::Type::Boundable;
+use SQL::Expr::Type::Null;
 use SQL::Expr::Op;
 use base qw/SQL::Expr::ClauseElement/;
 
@@ -26,23 +29,23 @@ sub _binary_op {
     my ($a, $b, $reverse) = @_;
     # ---------- a
     if (not defined $a) {
-        $a = SQL::Expr::Null->new;
+        $a = SQL::Expr::Type::Null->new;
     }
     elsif (ref($a) eq 'SCALAR') {
-        $a = SQL::Expr::Literal->new($$a);
+        $a = SQL::Expr::Type::Literal->new($$a);
     }
     elsif (not blessed $a) {
-        $a = SQL::Expr::Boundable->new($a);
+        $a = SQL::Expr::Type::Boundable->new($a);
     }
     # ---------- b
     if (not defined $b) {
-        $b = SQL::Expr::Null->new;
+        $b = SQL::Expr::Type::Null->new;
     }
     elsif (ref($b) eq 'SCALAR') {
-        $b = SQL::Expr::Literal->new($$b);
+        $b = SQL::Expr::Type::Literal->new($$b);
     }
     elsif (not blessed $b) {
-        $b = SQL::Expr::Boundable->new($b);
+        $b = SQL::Expr::Type::Boundable->new($b);
     }
     return $op_class->new( $a, $b );
 }

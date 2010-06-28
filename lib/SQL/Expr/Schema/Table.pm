@@ -56,6 +56,16 @@ sub _refresh_name_to_column {
     $self->{name_to_column} = $out;
 }
 
+sub stmt {
+    my ($self) = @_;
+    $self->{name};
+}
+
+sub _str {
+    my ($self) = @_;
+    $self->{name};
+}
+
 # readonly accessor
 sub name {
     my ($self) = @_;

@@ -1,4 +1,4 @@
-package SQL::Expr::Literal;
+package SQL::Expr::Type::Literal;
 use strict;
 use Scalar::Util qw/blessed/;
 use base qw/SQL::Expr::Comparable/;
@@ -17,7 +17,7 @@ sub _str { $_[0]->{literal} }
 
 # =====================================
 
-package SQL::Expr::LiteralGroup;
+package SQL::Expr::Type::LiteralGroup;
 use strict;
 use Carp ();
 use Scalar::Util qw/blessed/;
@@ -29,14 +29,14 @@ sub _BUILD {
     foreach my $i (@in) {
         my $o = $i;
         if (not defined $i) {
-            $o = SQL::Expr::Null->new;
+            $o = SQL::Expr::Type::Null->new;
         }
         if (not(blessed $o)) {
             my $unb = $o;
             if (ref($o) eq 'SCALAR') {
                 $unb = $$o;
             }
-            $o = SQL::Expr::Literal->new($unb);
+            $o = SQL::Expr::Type::Literal->new($unb);
         }
         push @out, $o;
     }

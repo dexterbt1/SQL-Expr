@@ -9,13 +9,13 @@ sub _BUILD {
     $self->{c} = [ ];
     foreach my $c (@clauses) {
         if (not defined $c) {
-            $c = SQL::Expr::Null->new;
+            $c = SQL::Expr::Type::Null->new;
         }
         elsif (ref($c) eq 'SCALAR') {
-            $c = SQL::Expr::Literal->new($$c);
+            $c = SQL::Expr::Type::Literal->new($$c);
         }
         elsif (not blessed $c) {
-            $c = SQL::Expr::Boundable->new($c);
+            $c = SQL::Expr::Type::Boundable->new($c);
         }
         push @{$self->{c}}, $c;
     }

@@ -18,8 +18,7 @@ $t1 = SQL::Expr::Schema::Table->new(
 );
 
 # shorter declare
-$t2 = Table(
-    'user_profile', 
+$t2 = Table( 'user_profile', 
     [ 
         Column( 'id' ), 
         Column( 'user_id' ), 

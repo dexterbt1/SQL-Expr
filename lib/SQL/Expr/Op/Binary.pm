@@ -47,7 +47,7 @@ package SQL::Expr::Op::Eq;
 use base qw/SQL::Expr::Op::Binary/;
 sub op { 
     my ($self, $a, $b) = @_;
-    return 'IS' if ($b->isa('SQL::Expr::Null'));
+    return 'IS' if ($b->isa('SQL::Expr::Type::Null'));
     return '=';
 }
 
@@ -56,7 +56,7 @@ package SQL::Expr::Op::Neq;
 use base qw/SQL::Expr::Op::Binary/;
 sub op { 
     my ($self, $a, $b) = @_;
-    return 'IS NOT' if ($b->isa('SQL::Expr::Null'));
+    return 'IS NOT' if ($b->isa('SQL::Expr::Type::Null'));
     return '<>';
 }
 
@@ -92,7 +92,7 @@ sub _str {
     my ($self) = @_;
     my ($a, $b) = ($self->{a}, $self->{b});
     # TODO: further quote this, though we might need to use a DBI $dbh (quote_string?)
-    if (not $b->isa('SQL::Expr::Null')) { 
+    if (not $b->isa('SQL::Expr::Type::Null')) { 
         $b = '"'.$b.'"';
     }
     return sprintf("%s %s %s", $a, $self->op($a,$b), $b); 
@@ -113,16 +113,16 @@ sub _BUILD {
     my $a = shift;
     # ---------- a
     if (not defined $a) {
-        $a = SQL::Expr::Null->new;
+        $a = SQL::Expr::Type::Null->new;
     }
     elsif (ref($a) eq 'SCALAR') {
-        $a = SQL::Expr::Literal->new($$a);
+        $a = SQL::Expr::Type::Literal->new($$a);
     }
     elsif (not blessed $a) {
-        $a = SQL::Expr::Boundable->new($a);
+        $a = SQL::Expr::Type::Boundable->new($a);
     }
     $self->{a} = $a;
-    $self->{b} = SQL::Expr::LiteralGroup->new(@_);
+    $self->{b} = SQL::Expr::Type::LiteralGroup->new(@_);
 }
 
 

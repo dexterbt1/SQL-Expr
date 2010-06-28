@@ -1,4 +1,4 @@
-package SQL::Expr::Null;
+package SQL::Expr::Type::Null;
 use strict;
 use base qw/SQL::Expr::Comparable/;
 
