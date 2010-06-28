@@ -32,6 +32,7 @@ use Carp ();
 use Scalar::Util qw/blessed weaken/;
 use base qw/SQL::Expr::Schema::TableClause/;
 use SQL::Expr::Schema::Column;
+use SQL::Expr::Q::Select;
 
 sub _BUILD {
     my $self = shift @_;
@@ -80,7 +81,7 @@ sub c {
 # mutators
 sub add_column {
     my ($self, $col) = @_;
-    # this is fragile, "columns" is inherited from FromClause
+    # TODO: Review: this is fragile, "columns" is inherited from FromClause
     (blessed($col) && $col->isa("SQL::Expr::ColumnClause"))
         or Carp::confess("add_column expects a SQL::Expr::ColumnClause instance");
     # check for dup columns
@@ -90,6 +91,32 @@ sub add_column {
     push @{$self->{columns}}, $col;
     $self->_refresh_name_to_column();
 }
+
+# query generation
+
+sub columns_stmt {
+    my $self = shift @_;
+    my @out = ();
+    foreach my $c ($self->columns) {
+        push @out, $c->stmt(@_);
+    }
+    return @out;
+}
+
+sub columns_bind {
+    my $self = shift @_;
+    my @out = ();
+    foreach my $c ($self->columns) {
+        push @out, $c->bind(@_);
+    }
+    return @out;
+}
+
+
+#sub select {
+#    my ($self) = @_;
+#    return SQL::Expr::Q::Select->new( -from => $self, -columns => [ $self->columns ] );
+#}
 
 
 1;

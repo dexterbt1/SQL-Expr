@@ -25,6 +25,14 @@ sub columns {
 }
 
 
+sub columns_stmt {
+    die "Unimplemented";
+}
+
+sub columns_bind {
+    die "Unimplemented";
+}
+
 
 1;
 
