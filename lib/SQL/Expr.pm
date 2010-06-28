@@ -10,19 +10,22 @@ use SQL::Expr::Literal;
 use SQL::Expr::Conjunction;
 use SQL::Expr::Null;
 
-use SQL::Expr::Table;
+use SQL::Expr::Schema::Table;
+use SQL::Expr::Schema::Column;
 
 use Sub::Exporter -setup => {
     exports => [ qw/ 
             Literal Null
             Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_
-            Column
+            Table Column
+            Join
             /,
             ],
     groups => {
             'types'     => [ qw/ Literal Null / ],
             'operators' => [ qw/ Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_ /],
-            'schema'    => [ qw/ Column / ]
+            'schema'    => [ qw/ Table Column / ],
+            'joins'     => [ qw/ Join / ]
             },
 };
 
@@ -30,17 +33,13 @@ use Sub::Exporter -setup => {
 # ========================================
 
 # types
-# -----
 sub Literal { SQL::Expr::Literal->new(@_); }
 sub Null { SQL::Expr::Null->new; }
 
-# operators
-# ---------
-
-# unary
+# unary ops
 sub Not_ { SQL::Expr::Op::Unary::Not->new(@_); }
 
-# binary
+# binary ops
 sub Eq_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Eq', @_); }
 sub Neq_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Neq', @_); }
 sub Gt_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Gt', @_); }
@@ -49,6 +48,7 @@ sub Lt_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Lt', @_); }
 sub Lte_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Lte', @_); }
 sub Like_ { SQL::Expr::Comparable::_binary_op(0, 'SQL::Expr::Op::Like', @_); }
 
+# special ops
 sub In_ { SQL::Expr::Op::In->new(@_); }
 
 # conjuctions
@@ -58,9 +58,13 @@ sub Or_ { SQL::Expr::Op::Conjunction::Or->new(@_); }
 # ==========================
 
 # schema
-# ------
-sub Column { SQL::Expr::Column->new( -name => shift @_, @_ ); }
+sub Table { SQL::Expr::Schema::Table->new( -name => shift @_, -columns => shift @_ ); }
+sub Column { SQL::Expr::Schema::Column->new( -name => shift @_, @_ ); }
 
+# ==========================
+
+# joins
+sub Join { }
 
 
 1;

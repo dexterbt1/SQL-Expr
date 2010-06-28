@@ -1,11 +1,11 @@
-package SQL::Expr::TableClause;
+package SQL::Expr::Schema::TableClause;
 use strict;
 use Carp ();
 use base qw/SQL::Expr::FromClause/;
 
 
 
-package SQL::Expr::Table::ColumnAccessor;
+package SQL::Expr::Schema::Table::ColumnAccessor;
 use strict;
 use Carp ();
 use Data::Dumper;
@@ -26,17 +26,18 @@ sub DESTROY {
 
 
 
-package SQL::Expr::Table;
+package SQL::Expr::Schema::Table;
 use strict;
 use Carp ();
-use Scalar::Util qw/blessed/;
-use base qw/SQL::Expr::TableClause/;
-use SQL::Expr::Column;
+use Scalar::Util qw/blessed weaken/;
+use base qw/SQL::Expr::Schema::TableClause/;
+use SQL::Expr::Schema::Column;
 
 sub _BUILD {
     my $self = shift @_;
     $self->SUPER::_BUILD( @_ );
-    $self->{c_accessor} = bless( { t => $self }, 'SQL::Expr::Table::ColumnAccessor' );
+    $self->{c_accessor} = bless( { t => $self }, 'SQL::Expr::Schema::Table::ColumnAccessor' );
+    weaken $self->{c_accessor}->{t};
     $self->{name_to_column} = { };
     $self->_refresh_name_to_column();
 }
@@ -50,6 +51,7 @@ sub _refresh_name_to_column {
         (not exists $self->{name_to_column}->{$name})
             or Carp::croak("Duplicate column named ".$name);
         $out->{$name} = $c;
+        $c->set_parent_table( $self );
     }
     $self->{name_to_column} = $out;
 }

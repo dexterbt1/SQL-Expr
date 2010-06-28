@@ -2,21 +2,22 @@ package main;
 use strict;
 use Test::More qw/no_plan/;
 use Test::Exception;
-use SQL::Expr::Table;
+use SQL::Expr::Schema::Table;
+use Scalar::Util qw/refaddr/;
 
 my $table;
 my @columns;
 my ($stmt, @bind);
 
 # NO args
-$table = SQL::Expr::Table->new;
-isa_ok $table, 'SQL::Expr::Table';
+$table = SQL::Expr::Schema::Table->new;
+isa_ok $table, 'SQL::Expr::Schema::Table';
 is $table->name, undef;
 @columns = $table->columns;
 is scalar(@columns), 0;
 
 # dynamically added column
-$table = SQL::Expr::Table->new;
+$table = SQL::Expr::Schema::Table->new;
 dies_ok {
     $table->add_column;
 } 'undef column';
@@ -24,42 +25,44 @@ dies_ok {
     $table->add_column( 1 );
 } 'invalid column';
 dies_ok {
-    $table->add_column( SQL::Expr::Column->new );
+    $table->add_column( SQL::Expr::Schema::Column->new );
 } 'invalid column name';
 dies_ok {
-    $table->add_column( SQL::Expr::Column->new( -name => undef ) );
+    $table->add_column( SQL::Expr::Schema::Column->new( -name => undef ) );
 } 'invalid column name';
 lives_ok {
-    $table->add_column( SQL::Expr::Column->new( -name => 'id' ) );
+    $table->add_column( SQL::Expr::Schema::Column->new( -name => 'id' ) );
 } 'valid column name';
 dies_ok {
-    $table->add_column( SQL::Expr::Column->new( -name => 'id' ) );
+    $table->add_column( SQL::Expr::Schema::Column->new( -name => 'id' ) );
 } 'dup column name';
 @columns = $table->columns;
 is scalar(@columns), 1;
 
 
 # complete and minimal declaration
-$table = SQL::Expr::Table->new(
+$table = SQL::Expr::Schema::Table->new(
     -name => 'person', 
     -columns => [
-        SQL::Expr::Column->new( -name => 'id' ),
-        SQL::Expr::Column->new( -name => 'name' ),
+        SQL::Expr::Schema::Column->new( -name => 'id' ),
+        SQL::Expr::Schema::Column->new( -name => 'name' ),
     ],
 );
-isa_ok $table, 'SQL::Expr::Table';
+isa_ok $table, 'SQL::Expr::Schema::Table';
 is $table->name, 'person';
 @columns = $table->columns;
 is scalar(@columns), 2;
 
 # test column name accessors
 dies_ok {
-    isa_ok $table->c->yay, 'SQL::Expr::Column';
+    isa_ok $table->c->yay, 'SQL::Expr::Schema::Column';
 } 'unknown column accessed via colaccessor';
-isa_ok $table->c->id, 'SQL::Expr::Column';
+isa_ok $table->c->id, 'SQL::Expr::Schema::Column';
 is $table->c->id->{name}, 'id';
-isa_ok $table->c->name, 'SQL::Expr::Column';
+is refaddr($table->c->id->{parent_table}), refaddr($table);
+isa_ok $table->c->name, 'SQL::Expr::Schema::Column';
 is $table->c->name->{name}, 'name';
+is refaddr($table->c->name->{parent_table}), refaddr($table);
 
 # table inner_join
 # InnerJoin

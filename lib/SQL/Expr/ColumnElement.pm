@@ -54,6 +54,13 @@ sub in {
 # like(other, escape=None)¶
 # match(other, **kwargs)¶
 
+package SQL::Expr::ColumnClause;
+use strict;
+use Carp ();
+use base qw/SQL::Expr::ColumnElement/;
+
+
+
 
 1;
 

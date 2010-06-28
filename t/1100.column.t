@@ -13,12 +13,18 @@ is "$c", 'id';
 is $stmt, 'id';
 is scalar(@bind), 0;
 
+# schema info
+is $c->{name}, 'id';
+is $c->{parent_table}, undef;
+
 # aliased
 $e = $c->as("my_id");
 is "$e", 'id AS my_id';
 ($stmt, @bind) = $e->compile;
 is $stmt, 'id AS my_id';
 is scalar(@bind), 0;
+
+# FIXME: add more test against aliases, esp on the ref to the column
 
 # comparable
 $e = $c > 12345;
