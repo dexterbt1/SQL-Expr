@@ -1,7 +1,6 @@
 package SQL::Expr::ColumnElement;
 use strict;
 use Carp ();
-use SQL::Expr::Alias;
 use base qw/SQL::Expr::Comparable/;
 
 sub _BUILD {
@@ -14,23 +13,23 @@ sub _BUILD {
 }
 
 sub stmt {
-    my ($self) = @_;
-    $_[0]->{alias} || $_[0]->{name};
+    $_[0]->{name};
 }
 
 sub bind { 
 }
 
 sub _str { 
-    $_[0]->{alias} || $_[0]->{name};
+    $_[0]->{name};
 }
 
-sub as {
-    my ($self, $alias) = @_;
-    (defined($alias) && length($alias)>0)
-        or Carp::confess("ColumnElement expects defined and valid alias");
-    return SQL::Expr::Alias->new( $self->{name}, $alias );
-}
+#sub as {
+#    my ($self, $alias) = @_;
+#    (defined($alias) && length($alias)>0)
+#        or Carp::confess("ColumnElement expects defined and valid alias");
+#    $self->{alias} = $alias;
+#    return $self;
+#}
 
 sub like { 
     SQL::Expr::Comparable::_binary_op( 0, 'SQL::Expr::Op::Like', @_ );

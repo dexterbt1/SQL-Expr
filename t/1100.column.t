@@ -1,6 +1,7 @@
 use strict;
 use Test::More qw/no_plan/;
 use Test::Exception;
+use Scalar::Util qw/refaddr/;
 use SQL::Expr '-all';
 
 my $c;
@@ -17,13 +18,6 @@ is scalar(@bind), 0;
 is $c->{name}, 'id';
 is $c->{parent_table}, undef;
 
-# aliased
-$e = $c->as("my_id");
-is "$e", 'id AS my_id';
-($stmt, @bind) = $e->compile;
-is $stmt, 'id AS my_id';
-is scalar(@bind), 0;
-
 # FIXME: add more test against aliases, esp on the ref to the column
 
 # comparable
@@ -33,11 +27,6 @@ is "$e", 'id > 12345';
 is $stmt, 'id > ?';
 is scalar(@bind), 1;
 is $bind[0], 12345;
-
-# comparable alias
-dies_ok {
-    $e = $c->as('uid') > 12345;
-} 'cannot compare alias';
 
 # LIKE
 dies_ok {

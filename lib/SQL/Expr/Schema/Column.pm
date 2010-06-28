@@ -18,6 +18,21 @@ sub set_parent_table {
     weaken $self->{parent_table};
 }
 
+sub stmt {
+    my $self = shift @_;
+    $self->_str;
+}
+
+sub _str {
+    my $self = shift @_;
+    if (defined $self->{parent_table}) {
+        return sprintf("%s.%s", $self->{parent_table}->{name}, $self->{name});
+    }
+    return $self->{name};
+}
+
+
+
 
 1;
 

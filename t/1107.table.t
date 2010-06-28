@@ -53,7 +53,7 @@ is $table->name, 'person';
 @columns = $table->columns;
 is scalar(@columns), 2;
 
-# test column name accessors
+# column name accessors
 dies_ok {
     isa_ok $table->c->yay, 'SQL::Expr::Schema::Column';
 } 'unknown column accessed via colaccessor';
@@ -63,6 +63,16 @@ is refaddr($table->c->id->{parent_table}), refaddr($table);
 isa_ok $table->c->name, 'SQL::Expr::Schema::Column';
 is $table->c->name->{name}, 'name';
 is refaddr($table->c->name->{parent_table}), refaddr($table);
+
+# column stmt,bind
+($stmt,@bind) = $table->c->id->compile;
+is $stmt, 'person.id';
+is scalar(@bind), 0;
+
+($stmt,@bind) = $table->c->name->compile;
+is $stmt, 'person.name';
+is scalar(@bind), 0;
+
 
 # table inner_join
 # InnerJoin
