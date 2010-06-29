@@ -14,6 +14,7 @@ use SQL::Expr::Type::Boundable;
 
 use SQL::Expr::Schema::Table;
 use SQL::Expr::Schema::Column;
+use SQL::Expr::Schema::Join;
 
 use SQL::Expr::Q::Select;
 
@@ -69,7 +70,7 @@ sub Table { SQL::Expr::Schema::Table->new( -name => shift @_, -columns => shift 
 sub Column { SQL::Expr::Schema::Column->new( -name => shift @_, @_ ); }
 
 # joins
-sub Join { }
+sub Join { SQL::Expr::Schema::Join->new( -left => shift @_, -right => shift @_, -condition => @_ ) }
 
 # ==========================
 
