@@ -1,20 +1,21 @@
 Build.PL
 lib/SQL/Expr.pm
 lib/SQL/Expr/Alias.pm
-lib/SQL/Expr/Boundable.pm
 lib/SQL/Expr/ClauseElement.pm
-lib/SQL/Expr/Column.pm
 lib/SQL/Expr/ColumnElement.pm
 lib/SQL/Expr/Comparable.pm
-lib/SQL/Expr/Conjunction.pm
 lib/SQL/Expr/FromClause.pm
-lib/SQL/Expr/Literal.pm
-lib/SQL/Expr/Null.pm
 lib/SQL/Expr/Op.pm
 lib/SQL/Expr/Op/Binary.pm
+lib/SQL/Expr/Op/Conjunction.pm
 lib/SQL/Expr/Op/Unary.pm
-lib/SQL/Expr/Table.pm
-MANIFEST			This list of files
+lib/SQL/Expr/Q/Select.pm
+lib/SQL/Expr/Schema/Column.pm
+lib/SQL/Expr/Schema/Table.pm
+lib/SQL/Expr/Type/Boundable.pm
+lib/SQL/Expr/Type/Literal.pm
+lib/SQL/Expr/Type/Null.pm
+MANIFEST
 t/0950.op.00.t
 t/0951.conj.t
 t/1000-literal.t
@@ -22,3 +23,5 @@ t/1001-unary.t
 t/1005.conj.t
 t/1100.column.t
 t/1107.table.t
+t/1120.join.t
+t/1500.select.t
