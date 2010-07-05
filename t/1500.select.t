@@ -6,6 +6,7 @@ use SQL::Expr qw/-all/;
 
 my $s;
 my ($t, $tp);
+my ($a, $b);
 my ($stmt, @bind);
 
 dies_ok { $s = SQL::Expr::Q::Select->new; } 'missing from or column_spec';
@@ -73,16 +74,25 @@ is scalar(@bind), 2;
 is $bind[0], 1;
 is $bind[1], 123;
 
+# implicit joins
+$s = SQL::Expr::Q::Select->new( -from => [ $t, $tp ] );
+($stmt, @bind) = $s->compile;
+is $stmt, 'SELECT user.id, user.username, user_profile.id, user_profile.user_id, user_profile.bio FROM user, user_profile';
 
-# with joins
-$s = SQL::Expr::Q::Select->new( 
-    -from => InnerJoin( $t, $tp ),
-);
+# aliased implicit joins
+$a = TableAlias( $t, 'a' );
+$b = TableAlias( $tp, 'b' );
+$s = SQL::Expr::Q::Select->new( -from => [ $a, $b ] );
+($stmt, @bind) = $s->compile;
+is $stmt, 'SELECT a.id, a.username, b.id, b.user_id, b.bio FROM user AS a, user_profile AS b';
+
+
+# ANSI joins
+$s = SQL::Expr::Q::Select->new( -from => InnerJoin( $t, $tp ) );
 ($stmt, @bind) = $s->compile;
 is $stmt, 'SELECT user.id, user.username, user_profile.id, user_profile.user_id, user_profile.bio FROM user INNER JOIN user_profile';
 
 # aliased joins
-my ($a, $b);
 $a = TableAlias( $t, 'a' );
 $b = TableAlias( $tp, 'b' );
 $s = SQL::Expr::Q::Select->new( 

@@ -8,16 +8,16 @@ sub _BUILD {
     my $self = shift @_;
     $self->SUPER::_BUILD( @_ );
     (defined($self->{from}) || defined($self->{columns}))
-        or Carp::croak("Select expects -from OR -columns declaration");
+        or Carp::confess("Select expects -from OR -columns declaration");
     # check -columns
     if (defined $self->{columns}) {
         my $cols = $self->{columns};
         ( (ref($cols) eq 'ARRAY') && (scalar(@$cols) > 0) )
-            or Carp::croak("Select -columns definition should be a non-empty arrayref");
+            or Carp::confess("Select -columns definition should be a non-empty arrayref");
         # auto coerce
         foreach my $c (@$cols) {
             (blessed($c) && ($c->isa('SQL::Expr::ClauseElement')))
-                or Carp::croak("Select -columns items should be a SQL::Expr::ClauseElement");
+                or Carp::confess("Select -columns items should be a SQL::Expr::ClauseElement");
         }
     }
     else {
@@ -25,15 +25,25 @@ sub _BUILD {
     }
     # check -from
     if (defined $self->{from}) {
-        (blessed($self->{from}) && $self->{from}->isa("SQL::Expr::FromClause"))
-            or Carp::croak("Select -from should be a SQL::Expr::FromClause");
+        if (ref($self->{from}) eq 'ARRAY') {
+            foreach my $from_item (@{$self->{from}}) {
+                (blessed($from_item) && $from_item->isa("SQL::Expr::FromClause"))
+                    or Carp::confess("Select -from should be a SQL::Expr::FromClause, OR an ARRAYREF of SQL::Expr::FromClause objects");
+            }
+        }
+        elsif (blessed($self->{from}) && $self->{from}->isa("SQL::Expr::FromClause")) {
+            # good
+        }
+        else {
+            Carp::confess("Select -from should be a SQL::Expr::FromClause, OR an ARRAYREF of SQL::Expr::FromClause objects");
+        }
     }
     # check where
     if (exists $self->{where}) {
         (defined $self->{where})
-            or Carp::croak("Select -where cannot be undef");
+            or Carp::confess("Select -where cannot be undef");
         (defined $self->{from})
-            or Carp::croak("Select with -where clause expects a -from clause");
+            or Carp::confess("Select with -where clause expects a -from clause");
     }
 }
 
@@ -47,7 +57,12 @@ sub stmt {
             @cols_stmt = map { $_->stmt(@_) } @$cols;
         }
         elsif (defined $self->{from}) {
-            @cols_stmt = $self->{from}->columns_stmt;
+            if (ref($self->{from}) eq 'ARRAY') {
+                @cols_stmt = map { $_->columns_stmt(@_) } @{$self->{from}};
+            }
+            else {
+                @cols_stmt = $self->{from}->columns_stmt(@_);
+            }
         }
     }
     # FROM
@@ -55,7 +70,15 @@ sub stmt {
     my $from_clause = '';
     {
         if (defined $from) {
-            $from_clause = sprintf(" FROM %s", $from->stmt(@_));
+            if (ref($from) eq 'ARRAY') {
+                $from_clause = sprintf(
+                    " FROM %s",
+                    join(", ", map { $_->stmt(@_) } @$from),
+                );
+            }
+            else {
+                $from_clause = sprintf(" FROM %s", $from->stmt(@_));
+            }
         }
     }
     # WHERE
@@ -85,11 +108,16 @@ sub bind {
     }
     # from
     if (defined $self->{from}) {
-        push @out, $self->{from}->columns_bind;
+        if (ref($self->{from}) eq 'ARRAY') {
+            push @out, map { $_->columns_bind(@_) } @{$self->{from}};
+        }
+        else {
+            push @out, $self->{from}->columns_bind(@_);
+        }
     }
     # where
     if (defined $self->{where}) {
-        push @out, $self->{where}->bind;
+        push @out, $self->{where}->bind(@_);
     }
     return @out;
 }
