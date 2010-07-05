@@ -22,16 +22,16 @@ use Sub::Exporter -setup => {
     exports => [ qw/ 
             Literal Null Boundable
             Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_
-            Table Column
-            Join
+            Table TableAlias Column
+            InnerJoin LeftOuterJoin RightOuterJoin
             Select
             /,
             ],
     groups => {
             'types'     => [ qw/ Literal Null Boundable / ],
             'operators' => [ qw/ Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_ /],
-            'schema'    => [ qw/ Table Column / ],
-            'joins'     => [ qw/ Join / ],
+            'schema'    => [ qw/ Table TableAlias Column / ],
+            'joins'     => [ qw/ InnerJoin LeftOuterJoin RightOuterJoin / ],
             'queries'   => [ qw/ Select / ]
             },
 };
@@ -67,10 +67,13 @@ sub Or_ { SQL::Expr::Op::Conjunction::Or->new(@_); }
 
 # schema
 sub Table { SQL::Expr::Schema::Table->new( -name => shift @_, -columns => shift @_ ); }
+sub TableAlias { SQL::Expr::Schema::TableAlias->new( -table => shift @_, -as => shift @_ ); }
 sub Column { SQL::Expr::Schema::Column->new( -name => shift @_, @_ ); }
 
 # joins
-sub Join { SQL::Expr::Schema::Join->new( -left => shift @_, -right => shift @_, -condition => @_ ) }
+sub InnerJoin { SQL::Expr::Schema::Join->new( -left => shift @_, -right => shift @_, -type => 'Inner', -condition => shift @_ ) }
+sub LeftOuterJoin { SQL::Expr::Schema::Join->new( -left => shift @_, -right => shift @_, -type => 'LeftOuter', -condition => shift @_ ) }
+sub RightOuterJoin { SQL::Expr::Schema::Join->new( -left => shift @_, -right => shift @_, -type => 'RightOuter', -condition => shift @_ ) }
 
 # ==========================
 

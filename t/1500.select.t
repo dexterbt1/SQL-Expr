@@ -5,7 +5,7 @@ use Test::Exception;
 use SQL::Expr qw/-types -joins -schema -queries/;
 
 my $s;
-my $t;
+my ($t, $tp);
 my ($stmt, @bind);
 
 dies_ok { $s = SQL::Expr::Q::Select->new; } 'missing from or column_spec';
@@ -25,6 +25,12 @@ is $bind[0], 1;
 $t = Table( 'user', 
     [   Column('id'), 
         Column('username'), 
+    ],
+);
+$tp = Table( 'user_profile', 
+    [   Column('id'), 
+        Column('user_id'), 
+        Column('bio'), 
     ],
 );
 
@@ -68,7 +74,22 @@ is $bind[0], 1;
 is $bind[1], 123;
 
 
+# with joins
+$s = SQL::Expr::Q::Select->new( 
+    -from => InnerJoin( $t, $tp ),
+);
+($stmt, @bind) = $s->compile;
+is $stmt, 'SELECT user.id, user.username, user_profile.id, user_profile.user_id, user_profile.bio FROM user INNER JOIN user_profile';
 
+# aliased joins
+my ($a, $b);
+$a = TableAlias( $t, 'a' );
+$b = TableAlias( $tp, 'b' );
+$s = SQL::Expr::Q::Select->new( 
+    -from => InnerJoin( $a, $b, $a->c->id == $b->c->user_id ),
+);
+($stmt, @bind) = $s->compile;
+is $stmt, 'SELECT a.id, a.username, b.id, b.user_id, b.bio FROM user AS a INNER JOIN user_profile AS b ON ( a.id = b.user_id )';
 
 ok 1;
 

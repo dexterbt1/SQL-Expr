@@ -6,6 +6,7 @@ use SQL::Expr::Schema::Table;
 use Scalar::Util qw/refaddr/;
 
 my $table;
+my $a;
 my @columns;
 my ($stmt, @bind);
 
@@ -59,12 +60,10 @@ dies_ok {
 } 'unknown column accessed via colaccessor';
 isa_ok $table->c->id, 'SQL::Expr::Schema::Column';
 is $table->c->id->{name}, 'id';
-is refaddr($table->c->id->{parent_table}), refaddr($table);
 isa_ok $table->c->name, 'SQL::Expr::Schema::Column';
 is $table->c->name->{name}, 'name';
-is refaddr($table->c->name->{parent_table}), refaddr($table);
 
-# column stmt,bind
+# individual column stmt,bind
 ($stmt,@bind) = $table->c->id->compile;
 is $stmt, 'person.id';
 is scalar(@bind), 0;
@@ -73,9 +72,24 @@ is scalar(@bind), 0;
 is $stmt, 'person.name';
 is scalar(@bind), 0;
 
+(@columns) = $table->columns_stmt;
+is $columns[0], 'person.id';
+is $columns[1], 'person.name';
 
-# table inner_join
-# InnerJoin
+
+# aliased
+$a = SQL::Expr::Schema::TableAlias->new( -table => $table, -as => 'x' );
+is "$a", 'x';
+($stmt, @bind) = $a->compile;
+is $stmt, 'person AS x';
+(@columns) = $a->columns_stmt;
+is $columns[0], 'x.id';
+is $columns[1], 'x.name';
+#is $a->c->id->stmt, 'x.id';
+#is $a->c->name->stmt, 'x.name';
+
+
+
 
 =pod
 
@@ -88,8 +102,6 @@ my $sel = SQL::Expr::Select->new(
 
 $session->query('Person')
         ->filter( Person->name == "Dexter" )
-        
-Music::Artist->artistid->in( 1, 2, 3 );
 
 =cut
 

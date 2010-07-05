@@ -5,7 +5,8 @@ use Test::Exception;
 use SQL::Expr qw/-types -joins -schema/;
 
 my ($t1, $t2);
-my $join;
+my ($join);
+my ($a, $b);
 my ($stmt, @bind);
 
 # long form
@@ -28,25 +29,41 @@ $t2 = Table( 'user_profile',
 
 # Join
 
-dies_ok { $join = Join; } 'noparam';
-dies_ok { $join = Join( 1 ); } 'invalid param';
-dies_ok { $join = Join( Literal('user') ); } 'invalid param';
-dies_ok { $join = Join( $t1 ); } 'requires t1,t2';
+dies_ok { $join = InnerJoin; } 'noparam';
+dies_ok { $join = InnerJoin( 1 ); } 'invalid param';
+dies_ok { $join = InnerJoin( Literal('user') ); } 'invalid param';
+dies_ok { $join = InnerJoin( $t1 ); } 'requires t1,t2';
 
-lives_ok { $join = Join( $t1, $t2 ); } 'minimal';
+lives_ok { $join = InnerJoin( $t1, $t2 ); } 'minimal';
 ($stmt, @bind) = $join->compile;
-is $stmt, 'user JOIN user_profile';
+is $stmt, 'user INNER JOIN user_profile';
 is scalar(@bind), 0;
 
-lives_ok { $join = Join( $t1, $t2, Boundable(1234) ); } 'w/ condition';
+lives_ok { $join = InnerJoin( $t1, $t2, Boundable(1234) ); } 'w/ condition';
 ($stmt, @bind) = $join->compile;
-is $stmt, 'user JOIN user_profile ON ( ? )';
+is $stmt, 'user INNER JOIN user_profile ON ( ? )';
 is scalar(@bind), 1;
 is $bind[0], 1234;
 
-lives_ok { $join = Join( $t1, $t2, $t1->c->id == $t2->c->user_id ); } 'w/ condition';
+lives_ok { $join = InnerJoin( $t1, $t2, $t1->c->id == $t2->c->user_id ); } 'w/ condition';
 ($stmt, @bind) = $join->compile;
-is $stmt, 'user JOIN user_profile ON ( user.id = user_profile.user_id )';
+is $stmt, 'user INNER JOIN user_profile ON ( user.id = user_profile.user_id )';
+is scalar(@bind), 0;
+is scalar($join->columns_stmt), 5;
+
+
+$a = InnerJoin( $t1, $t2, $t1->c->id == $t2->c->user_id );
+$join = InnerJoin( $a, $t1 );
+($stmt, @bind) = $join->compile;
+is $stmt, 'user INNER JOIN user_profile ON ( user.id = user_profile.user_id ) INNER JOIN user';
+is scalar(@bind), 0;
+
+# aliased
+$a = LeftOuterJoin( $t1, $t2, $t1->c->id == $t2->c->user_id );
+$b = TableAlias( $t1, 'user2' );
+$join = RightOuterJoin( $a, $b, $t1->c->id == $b->c->id );
+($stmt, @bind) = $join->compile;
+is $stmt, 'user LEFT OUTER JOIN user_profile ON ( user.id = user_profile.user_id ) RIGHT OUTER JOIN user AS user2 ON ( user.id = user2.id )';
 is scalar(@bind), 0;
 
 ok 1;

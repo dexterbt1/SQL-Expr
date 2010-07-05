@@ -25,12 +25,16 @@ sub columns {
 }
 
 
+sub name {
+    Carp::confess("Unimplemented");
+}
+
 sub columns_stmt {
-    die "Unimplemented";
+    Carp::confess("Unimplemented");
 }
 
 sub columns_bind {
-    die "Unimplemented";
+    Carp::confess("Unimplemented");
 }
 
 

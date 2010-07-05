@@ -32,7 +32,6 @@ use Carp ();
 use Scalar::Util qw/blessed weaken/;
 use base qw/SQL::Expr::Schema::TableClause/;
 use SQL::Expr::Schema::Column;
-use SQL::Expr::Q::Select;
 
 sub _BUILD {
     my $self = shift @_;
@@ -52,14 +51,17 @@ sub _refresh_name_to_column {
         (not exists $self->{name_to_column}->{$name})
             or Carp::croak("Duplicate column named ".$name);
         $out->{$name} = $c;
-        $c->set_parent_table( $self );
+        $c->set_parent($self);
     }
     $self->{name_to_column} = $out;
 }
 
 sub stmt {
     my ($self) = @_;
-    $self->{name};
+    $self->name;
+}
+
+sub bind {
 }
 
 sub _str {
@@ -117,6 +119,58 @@ sub columns_bind {
 #    my ($self) = @_;
 #    return SQL::Expr::Q::Select->new( -from => $self, -columns => [ $self->columns ] );
 #}
+
+package SQL::Expr::Schema::TableAlias;
+use strict;
+use Carp ();
+use Scalar::Util qw/weaken refaddr/;
+use base qw/SQL::Expr::Schema::Table/;
+
+sub _BUILD {
+    my $self = shift @_;
+    $self->SUPER::_BUILD(@_);
+    ($self->{table})
+        or Carp::croak("TableAlias requires a valid -table instance");
+    if (not $self->{as}) {
+        $self->{as} = "talias".refaddr($self);
+    }
+    # copy the columns from the table
+    my @columns_copy = ();
+    foreach my $c ($self->{table}->columns) {
+        my $clone = $c->clone;
+        $clone->set_parent($self);
+        push @columns_copy, $clone;
+    }
+    $self->{columns} = \@columns_copy;
+    $self->_refresh_name_to_column;
+    # override accessor
+    $self->{c_accessor} = bless( { t => $self }, 'SQL::Expr::Schema::Table::ColumnAccessor' );
+    weaken $self->{c_accessor}->{t};
+}
+
+sub add_column {
+    Carp::confess("Not supported. Cannot add column to an alias."); 
+}
+
+sub c {
+    my ($self) = @_;
+    return $self->{c_accessor};
+}
+
+sub name {
+    my ($self) = @_;
+    $self->{as};
+}
+
+sub stmt {
+    my $self = shift @_;
+    return sprintf("%s AS %s", $self->{table}->name, $self->name);
+}
+
+sub _str {
+    my ($self) = @_;
+    return $self->name;
+}
 
 
 1;
