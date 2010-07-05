@@ -86,6 +86,12 @@ $s = SQL::Expr::Q::Select->new( -from => [ $a, $b ] );
 ($stmt, @bind) = $s->compile;
 is $stmt, 'SELECT a.id, a.username, b.id, b.user_id, b.bio FROM user AS a, user_profile AS b';
 
+$a = TableAlias( $t, 'a' );
+$b = TableAlias( $tp, 'b' );
+$s = SQL::Expr::Q::Select->new( -from => [ $a, $b ], -where => Eq_( $a->c->id, $b->c->user_id ) );
+($stmt, @bind) = $s->compile;
+is $stmt, 'SELECT a.id, a.username, b.id, b.user_id, b.bio FROM user AS a, user_profile AS b WHERE a.id = b.user_id';
+
 
 # ANSI joins
 $s = SQL::Expr::Q::Select->new( -from => InnerJoin( $t, $tp ) );
@@ -101,12 +107,50 @@ $s = SQL::Expr::Q::Select->new(
 ($stmt, @bind) = $s->compile;
 is $stmt, 'SELECT a.id, a.username, b.id, b.user_id, b.bio FROM user AS a INNER JOIN user_profile AS b ON ( a.id = b.user_id )';
 
+# subquery via IN
+$a = TableAlias( $t, 'a' );
+$b = TableAlias( $tp, 'b' );
 $s = SQL::Expr::Q::Select->new( 
-    -from       => InnerJoin( $a, $b, $a->c->id == $b->c->user_id ),
-    -where      => And_( ($a->c->id > 1), ($b->c->bio->like("Hello%") ) ),
+    -from       => $b, 
+    -where      => $b->c->user_id->in( 
+        SQL::Expr::Q::Select->new( 
+            -columns    => [ $a->c->id ],
+            -from       => [ $a ],
+            -where      => And_( $a->c->id >= 123 ),
+        ),
+    ),
 );
-#diag $s->compile;
+($stmt, @bind) = $s->compile;
+is $stmt, 'SELECT b.id, b.user_id, b.bio FROM user_profile AS b WHERE b.user_id IN ( SELECT a.id FROM user AS a WHERE ( a.id >= ? ) )';
+is scalar(@bind), 1;
+is $bind[0], 123;
 
+# subquery as derived tables
+$s = SQL::Expr::Q::Select->new( 
+    -columns    => [ Literal('COUNT(*)') ],
+    -from       => TableAlias( SQL::Expr::Q::Select->new( -from => $t ), 'c' ),
+);
+($stmt, @bind) = $s->compile;
+is $stmt, 'SELECT COUNT(*) FROM ( SELECT user.id, user.username FROM user ) AS c';
+is scalar(@bind), 0;
+
+# subqueries as dependent subqueries in the columns
+$s = SQL::Expr::Q::Select->new( 
+    -columns    => [ 
+        $t->c->username, 
+        TableAlias( 
+            SQL::Expr::Q::Select->new( 
+                -columns => [ Literal('COUNT(id)') ], 
+                -from => $tp, 
+            ), 
+            'count_profiles' 
+        ), 
+    ],
+    -from       => $t,
+);
+($stmt, @bind) = $s->compile;
+is $stmt, 'SELECT user.username, ( SELECT COUNT(id) FROM user_profile ) AS count_profiles FROM user';
+is scalar(@bind), 0;
 
 ok 1;
 

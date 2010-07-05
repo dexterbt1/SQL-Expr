@@ -51,7 +51,7 @@ sub _str {
     my ($self) = @_;
     my $elements = $self->{e};
     my $str = sprintf(
-        "( %s )", 
+        "%s", 
         join(', ', map { "$_" } @$elements),
     );
     return $str;

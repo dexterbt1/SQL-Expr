@@ -2,7 +2,7 @@ package SQL::Expr::Q::Select;
 use strict;
 use Carp ();
 use Scalar::Util qw/blessed/;
-use base qw/SQL::Expr::ClauseElement/;
+use base qw/SQL::Expr::FromClause/;
 
 sub _BUILD {
     my $self = shift @_;
@@ -120,6 +120,16 @@ sub bind {
         push @out, $self->{where}->bind(@_);
     }
     return @out;
+}
+
+sub _str {
+    my ($self) = @_;
+    return $self->stmt;
+}
+
+sub name {
+    my ($self) = @_;
+    return sprintf("( %s )", $self->stmt);
 }
 
 1;

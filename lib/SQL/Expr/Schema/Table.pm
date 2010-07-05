@@ -51,7 +51,9 @@ sub _refresh_name_to_column {
         (not exists $self->{name_to_column}->{$name})
             or Carp::croak("Duplicate column named ".$name);
         $out->{$name} = $c;
-        $c->set_parent($self);
+        if ($c->can('set_parent')) {
+            $c->set_parent($self);
+        }
     }
     $self->{name_to_column} = $out;
 }
@@ -94,26 +96,6 @@ sub add_column {
     $self->_refresh_name_to_column();
 }
 
-# query generation
-
-sub columns_stmt {
-    my $self = shift @_;
-    my @out = ();
-    foreach my $c ($self->columns) {
-        push @out, $c->stmt(@_);
-    }
-    return @out;
-}
-
-sub columns_bind {
-    my $self = shift @_;
-    my @out = ();
-    foreach my $c ($self->columns) {
-        push @out, $c->bind(@_);
-    }
-    return @out;
-}
-
 
 #sub select {
 #    my ($self) = @_;
@@ -137,9 +119,16 @@ sub _BUILD {
     # copy the columns from the table
     my @columns_copy = ();
     foreach my $c ($self->{table}->columns) {
-        my $clone = $c->clone;
-        $clone->set_parent($self);
-        push @columns_copy, $clone;
+        if ($c->can('clone')) {
+            # Schema::Column objects are clonables, given their dependence on the parent
+            my $clone = $c->clone;
+            $clone->set_parent($self);
+            push @columns_copy, $clone;
+        }
+        else {
+            # otherwise, don't assume anything from column, accept as is
+            push @columns_copy, $c;
+        }
     }
     $self->{columns} = \@columns_copy;
     $self->_refresh_name_to_column;

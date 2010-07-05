@@ -18,9 +18,9 @@ sub stmt {
     my ($self) = @_;
     my ($a, $b) = ($self->{a}, $self->{b});
     my $stmt = sprintf("%s %s %s", 
-        $a->stmt,
+        $a->stmt(@_),
         $self->op($a,$b),
-        $b->stmt,
+        $b->stmt(@_),
     );
     return $stmt;
 }
@@ -109,7 +109,7 @@ sub op { return 'IN'; }
 sub _BUILD {
     my $self = shift;
     (@_ > 1)
-        or Carp::croak(ref($self)." requires 1 or params");
+        or Carp::confess(ref($self)." requires 1 or more params");
     my $a = shift;
     # ---------- a
     if (not defined $a) {
@@ -122,8 +122,44 @@ sub _BUILD {
         $a = SQL::Expr::Type::Boundable->new($a);
     }
     $self->{a} = $a;
-    $self->{b} = SQL::Expr::Type::LiteralGroup->new(@_);
+    # ---------- 
+    # for now, we'll support a simple subquery
+    my $blessed_count = 0;
+    foreach my $i (@_) {
+        if (blessed $i) {
+            ($blessed_count<1)
+                or Carp::confess("Unsupported number of object in IN() expression");
+            $blessed_count++;
+            ($i->isa('SQL::Expr::FromClause'))
+                or Carp::confess("Unsupported object type in IN() expression. Expected SQL::Expr::FromClause");
+        }
+    }
+
+    if ($blessed_count) {
+        $self->{b} = shift @_;
+    }
+    else {
+        $self->{b} = SQL::Expr::Type::LiteralGroup->new(@_);
+    }
 }
+
+sub stmt {
+    my ($self) = @_;
+    my ($a, $b) = ($self->{a}, $self->{b});
+    my $stmt = sprintf("%s %s ( %s )",  # FIXME: we need the parenthesis, could this be factored out?
+        $a->stmt,
+        $self->op($a,$b),
+        $b->stmt,
+    );
+    return $stmt;
+}
+
+sub _str { 
+    my ($self) = @_;
+    my ($a, $b) = ($self->{a}, $self->{b});
+    return sprintf("%s %s ( %s )", $a, $self->op($a,$b), $b); 
+}
+
 
 
 1;

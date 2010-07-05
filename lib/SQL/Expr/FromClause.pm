@@ -7,12 +7,11 @@ use base qw/SQL::Expr::ClauseElement/;
 sub _BUILD {
     my $self = shift @_;
     $self->SUPER::_BUILD( @_ );
-    if (not exists $self->{columns}) {
-        $self->{columns} = [ ];
-    }
-    foreach my $col (@{$self->{columns}}) {
-        (blessed($col) && $col->isa('SQL::Expr::ColumnElement'))
-            or Carp::confess("Unknown column type encountered. Expected SQL::Expr::ColumnElement");
+    if (exists $self->{columns}) {
+        foreach my $col (@{$self->{columns}}) {
+            (blessed($col) && $col->isa('SQL::Expr::ClauseElement'))
+                or Carp::confess("Unknown column type encountered. Expected SQL::Expr::ClauseElement");
+        }
     }
 }
 
@@ -20,7 +19,7 @@ sub _BUILD {
 # readonly accessor
 sub columns {
     my ($self) = @_;
-    my $c = $self->{columns} || [ ];
+    my $c = (exists $self->{columns}) ? $self->{columns} : [ ];
     return @$c;
 }
 
@@ -30,11 +29,21 @@ sub name {
 }
 
 sub columns_stmt {
-    Carp::confess("Unimplemented");
+    my $self = shift @_;
+    my @out = ();
+    foreach my $c ($self->columns) {
+        push @out, $c->stmt(@_);
+    }
+    return @out;
 }
 
 sub columns_bind {
-    Carp::confess("Unimplemented");
+    my $self = shift @_;
+    my @out = ();
+    foreach my $c ($self->columns) {
+        push @out, $c->bind(@_);
+    }
+    return @out;
 }
 
 
