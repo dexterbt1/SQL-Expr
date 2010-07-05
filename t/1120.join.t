@@ -2,6 +2,7 @@ package main;
 use strict;
 use Test::More qw/no_plan/;
 use Test::Exception;
+use Data::Dumper;
 use SQL::Expr qw/-types -joins -schema/;
 
 my ($t1, $t2);
@@ -65,6 +66,16 @@ $join = RightOuterJoin( $a, $b, $t1->c->id == $b->c->id );
 ($stmt, @bind) = $join->compile;
 is $stmt, 'user LEFT OUTER JOIN user_profile ON ( user.id = user_profile.user_id ) RIGHT OUTER JOIN user AS user2 ON ( user.id = user2.id )';
 is scalar(@bind), 0;
+is scalar($join->columns_stmt), 7;
+
+# anonymous aliases
+$a = TableAlias( $t1 );
+$b = TableAlias( $t2 );
+$join = InnerJoin( $a, $b );
+($stmt, @bind) = $join->compile;
+my ($alias1, $alias2) = ($stmt =~ /^user AS (\w+) INNER JOIN user_profile AS (\w+)/);
+isnt $alias1, $alias2;
+
 
 ok 1;
 

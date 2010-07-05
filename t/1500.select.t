@@ -2,7 +2,7 @@ package main;
 use strict;
 use Test::More qw/no_plan/;
 use Test::Exception;
-use SQL::Expr qw/-types -joins -schema -queries/;
+use SQL::Expr qw/-all/;
 
 my $s;
 my ($t, $tp);
@@ -90,6 +90,13 @@ $s = SQL::Expr::Q::Select->new(
 );
 ($stmt, @bind) = $s->compile;
 is $stmt, 'SELECT a.id, a.username, b.id, b.user_id, b.bio FROM user AS a INNER JOIN user_profile AS b ON ( a.id = b.user_id )';
+
+$s = SQL::Expr::Q::Select->new( 
+    -from       => InnerJoin( $a, $b, $a->c->id == $b->c->user_id ),
+    -where      => And_( ($a->c->id > 1), ($b->c->bio->like("Hello%") ) ),
+);
+#diag $s->compile;
+
 
 ok 1;
 
