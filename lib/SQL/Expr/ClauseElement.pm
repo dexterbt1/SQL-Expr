@@ -1,6 +1,7 @@
 package SQL::Expr::ClauseElement;
 use strict;
 use Carp ();
+use Scalar::Util qw/blessed/;
 
 use overload 
     '""'        => '_str',
@@ -17,6 +18,7 @@ sub _BUILD {
     my ($self, @args) = @_;
     while (my $a = shift @args) {
         # skip references and object args
+        next if (blessed $a);
         next if (ref $a);
         if ($a =~ /^-(\w+)$/) {
             my $k = $1;

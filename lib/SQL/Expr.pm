@@ -1,7 +1,7 @@
 package SQL::Expr;
 use strict;
 
-our $VERSION = 0.01;
+our $VERSION = '0.01';
 
 use SQL::Expr::ClauseElement;
 use SQL::Expr::Comparable;
@@ -11,6 +11,7 @@ use SQL::Expr::Op;
 use SQL::Expr::Type::Literal;
 use SQL::Expr::Type::Null;
 use SQL::Expr::Type::Boundable;
+use SQL::Expr::Type::Distinct;
 
 use SQL::Expr::Schema::Table;
 use SQL::Expr::Schema::Column;
@@ -18,24 +19,28 @@ use SQL::Expr::Schema::Join;
 
 use SQL::Expr::Q::Select;
 
+use SQL::Expr::Func;
+use SQL::Expr::Func::Aggregate;
+
 use Sub::Exporter -setup => {
     exports => [ qw/ 
-            Literal Null Boundable
+            Literal Null Boundable Distinct
             Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_
+            Count_ Avg_ Min_ Max_
             Table TableAlias Column
             InnerJoin LeftOuterJoin RightOuterJoin
             Select
             /,
             ],
     groups => {
-            'types'     => [ qw/ Literal Null Boundable / ],
+            'types'     => [ qw/ Literal Null Boundable Distinct / ],
             'operators' => [ qw/ Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_ /],
+            'functions' => [ qw/ Count_ Avg_ Min_ Max_ / ],
             'schema'    => [ qw/ Table TableAlias Column / ],
             'joins'     => [ qw/ InnerJoin LeftOuterJoin RightOuterJoin / ],
             'queries'   => [ qw/ Select / ]
             },
 };
-
 
 # ========================================
 
@@ -43,6 +48,7 @@ use Sub::Exporter -setup => {
 sub Literal { SQL::Expr::Type::Literal->new(@_); }
 sub Null { SQL::Expr::Type::Null->new; }
 sub Boundable { SQL::Expr::Type::Boundable->new(@_); }
+sub Distinct { SQL::Expr::Type::Distinct->new(@_); }
 
 # unary ops
 sub Not_ { SQL::Expr::Op::Unary::Not->new(@_); }
@@ -62,6 +68,12 @@ sub In_ { SQL::Expr::Op::In->new(@_); }
 # conjuctions
 sub And_ { SQL::Expr::Op::Conjunction::And->new(@_); }
 sub Or_ { SQL::Expr::Op::Conjunction::Or->new(@_); }
+
+# functions
+sub Count_ { SQL::Expr::Func::_construct_func('SQL::Expr::Func::Aggregate::Count',@_); }
+sub Avg_ { SQL::Expr::Func::_construct_func('SQL::Expr::Func::Aggregate::Avg',@_); }
+sub Min_ { SQL::Expr::Func::_construct_func('SQL::Expr::Func::Aggregate::Min',@_); }
+sub Max_ { SQL::Expr::Func::_construct_func('SQL::Expr::Func::Aggregate::Max',@_); }
 
 # ==========================
 

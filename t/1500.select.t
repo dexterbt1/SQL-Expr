@@ -14,7 +14,7 @@ dies_ok { $s = SQL::Expr::Q::Select->new( -from => undef ); } 'missing from or c
 dies_ok { $s = SQL::Expr::Q::Select->new( -columns => undef ); } 'missing from or columns';
 
 # by column definition
-dies_ok { $s = SQL::Expr::Q::Select->new( -columns => [ ]); } 'columns spec cannot be empty';
+dies_ok { $s = SQL::Expr::Q::Select->new( -columns => [ ] ); } 'columns spec cannot be empty';
 
 $s = SQL::Expr::Q::Select->new( -columns => [ Boundable(1) ] );
 ($stmt, @bind) = $s->compile;
