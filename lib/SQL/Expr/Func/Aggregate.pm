@@ -6,6 +6,9 @@ use base qw/SQL::Expr::ClauseElement/;
 
 sub _BUILD {
     my $self = shift;
+    my $class = ref($self);
+    (scalar @_ == 1)
+        or Carp::confess("$class expects single param ClauseElement object");
     $self->{expr} = shift @_;
 }
 

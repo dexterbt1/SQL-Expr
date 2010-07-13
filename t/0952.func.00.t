@@ -39,6 +39,9 @@ my @test = (
     [ Max_(Distinct(1)), 'MAX(DISTINCT ?)', 1 ],
     [ Max_(Distinct(Column('id'))), 'MAX(DISTINCT id)' ],
     [ Max_(Distinct(Boundable(1) == Boundable(2))), 'MAX(DISTINCT ? = ?)', 1, 2 ],
+
+    # aliases
+    ##[ Count_(\'id')->as('count_id'), 'COUNT(id) as count_id' ],
 );
 
 foreach (@test) {
@@ -46,6 +49,16 @@ foreach (@test) {
     is $e->stmt, $stmt, $stmt;
     is_deeply [ $e->bind ], \@bind, "bind for $stmt";
 }
+
+dies_ok { Count_() } '0-arg Count';
+dies_ok { Avg_() } '0-arg Avg';
+dies_ok { Min_() } '0-arg Min';
+dies_ok { Max_() } '0-arg Max';
+
+dies_ok { Count_(1,2) } '>=2-arg Count';
+dies_ok { Avg_(1,2) } '>=2-arg Avg';
+dies_ok { Min_(1,2) } '>=2-arg Min';
+dies_ok { Max_(1,2) } '>=2-arg Max';
 
 ok 1;
 
