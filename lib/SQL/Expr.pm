@@ -21,12 +21,13 @@ use SQL::Expr::Q::Select;
 
 use SQL::Expr::Func;
 use SQL::Expr::Func::Aggregate;
+use SQL::Expr::Func::String;
 
 use Sub::Exporter -setup => {
     exports => [ qw/ 
             Literal Null Boundable Distinct
             Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_
-            Count_ Avg_ Min_ Max_
+            Count_ Avg_ Min_ Max_ Concat_
             Table TableAlias Column
             InnerJoin LeftOuterJoin RightOuterJoin
             Select
@@ -35,7 +36,7 @@ use Sub::Exporter -setup => {
     groups => {
             'types'     => [ qw/ Literal Null Boundable Distinct / ],
             'operators' => [ qw/ Not_ Eq_ Neq_ Gt_ Gte_ Lt_ Lte_ Like_ In_ And_ Or_ /],
-            'functions' => [ qw/ Count_ Avg_ Min_ Max_ / ],
+            'functions' => [ qw/ Count_ Avg_ Min_ Max_ Concat_ / ],
             'schema'    => [ qw/ Table TableAlias Column / ],
             'joins'     => [ qw/ InnerJoin LeftOuterJoin RightOuterJoin / ],
             'queries'   => [ qw/ Select / ]
@@ -74,6 +75,7 @@ sub Count_ { SQL::Expr::Func::_construct_func('SQL::Expr::Func::Aggregate::Count
 sub Avg_ { SQL::Expr::Func::_construct_func('SQL::Expr::Func::Aggregate::Avg',@_); }
 sub Min_ { SQL::Expr::Func::_construct_func('SQL::Expr::Func::Aggregate::Min',@_); }
 sub Max_ { SQL::Expr::Func::_construct_func('SQL::Expr::Func::Aggregate::Max',@_); }
+sub Concat_ { SQL::Expr::Func::_construct_func('SQL::Expr::Func::String::Concat',@_); }
 
 # ==========================
 

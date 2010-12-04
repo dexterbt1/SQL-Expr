@@ -2,6 +2,8 @@ package SQL::Expr::ClauseElement;
 use strict;
 use Carp ();
 use Scalar::Util qw/blessed/;
+use Class::Load ':all';
+use YAML;
 
 use overload 
     '""'        => '_str',
@@ -12,6 +14,22 @@ sub new {
     my $self = bless({ }, $class);
     if ($class->can('_BUILD')) { $self->_BUILD(@_); }
     return $self;
+}
+
+sub _parse_kwargs {
+    my ($self, @args) = @_;
+    my %kwargs = ();
+    while (my $a = shift @args) {
+        if ($a =~ /^-(\w+)$/) {
+            my $k = $1;
+            my $v = shift @args;
+            $kwargs{$k} = $v;
+        }
+        else {
+            Carp::confess("Invalid keyword argument '$a', expected '-$a'");
+        }
+    }
+    return %kwargs;
 }
 
 sub _BUILD {
@@ -29,9 +47,39 @@ sub _BUILD {
 }
 
 sub compile { 
-    my ($self) = @_;
-    return ($self->stmt, $self->bind);
+    my $self = shift @_;
+    my (%kwargs) = $self->_parse_kwargs(@_);
+    # resolve dialect-specific class
+    my $self_class = ref($self);
+    my $class = ref($self);
+    if (defined $kwargs{dialect}) {
+        my $dialect = $kwargs{dialect} || '';
+        load_class("SQL::Expr::Dialect::${dialect}");
+        $class =~ s/^SQL::Expr::/SQL::Expr::Dialect::${dialect}::/g;
+    }
+    my ($stmt, @bind);
+    {
+        if ($class->can('stmt')) {
+            bless $self, $class; # rebless trickery
+            $stmt = $self->stmt;
+            bless $self, $self_class; # restore orig
+        }
+        else {
+            $stmt = $self->stmt;
+        }
+        # --- bind
+        if ($class->can('bind')) {
+            bless $self, $class; # rebless trickery
+            @bind = $self->bind;
+            bless $self, $self_class; # restore orig
+        }
+        else {
+            @bind = $self->bind;
+        }
+    }
+    return ($stmt, @bind);
 }
+
 
 sub stmt { Carp::confess("Unimplemented"); }
 sub bind { Carp::confess("Unimplemented"); }
