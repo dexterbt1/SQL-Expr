@@ -29,10 +29,16 @@ sub name {
 
 sub stmt {
     my $self = shift @_;
+    my %kwargs = @_;
+    my $dbh = $kwargs{dbh};
     if (defined $self->{parent}) {
-        return sprintf("%s.%s", $self->{parent}->name, $self->name);
+        return sprintf(
+            "%s.%s", 
+            (defined $dbh) ? $dbh->quote_identifier($self->{parent}->name) : $self->{parent}->name,
+            (defined $dbh) ? $dbh->quote_identifier($self->{name}) : $self->{name},
+        );
     }
-    $self->name;
+    return (defined $dbh) ? $dbh->quote_identifier($self->{name}) : $self->{name},
 }
 
 sub _str {

@@ -2,6 +2,7 @@ package SQL::Expr::Func::Aggregate;
 use strict;
 use Carp ();
 use Scalar::Util qw/blessed/;
+use SQL::Expr::Alias;
 use base qw/SQL::Expr::ClauseElement/;
 
 sub _BUILD {
@@ -25,6 +26,12 @@ sub _str {
 sub bind {
     my $self = shift;
     return $self->{expr}->bind(@_);
+}
+
+sub as {
+    my $self = shift;
+    my $alias = shift;
+    return SQL::Expr::Alias->new($self, $alias);
 }
 
 sub func_name {

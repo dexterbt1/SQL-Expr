@@ -16,22 +16,6 @@ sub new {
     return $self;
 }
 
-sub _parse_kwargs {
-    my ($self, @args) = @_;
-    my %kwargs = ();
-    while (my $a = shift @args) {
-        if ($a =~ /^-(\w+)$/) {
-            my $k = $1;
-            my $v = shift @args;
-            $kwargs{$k} = $v;
-        }
-        else {
-            Carp::confess("Invalid keyword argument '$a', expected '-$a'");
-        }
-    }
-    return %kwargs;
-}
-
 sub _BUILD {
     my ($self, @args) = @_;
     while (my $a = shift @args) {
@@ -48,10 +32,16 @@ sub _BUILD {
 
 sub compile { 
     my $self = shift @_;
-    my (%kwargs) = $self->_parse_kwargs(@_);
+    my (%kwargs) = @_;
     # resolve dialect-specific class
     my $self_class = ref($self);
     my $class = ref($self);
+    if (defined $kwargs{dbh}) {
+        if (not defined $kwargs{dialect}) {
+            my $dialect = $kwargs{dbh}->get_info(17);
+            $kwargs{dialect} = $dialect;
+        }
+    }
     if (defined $kwargs{dialect}) {
         my $dialect = $kwargs{dialect} || '';
         load_class("SQL::Expr::Dialect::${dialect}");
@@ -61,20 +51,20 @@ sub compile {
     {
         if ($class->can('stmt')) {
             bless $self, $class; # rebless trickery
-            $stmt = $self->stmt;
+            $stmt = $self->stmt(@_);
             bless $self, $self_class; # restore orig
         }
         else {
-            $stmt = $self->stmt;
+            $stmt = $self->stmt(@_);
         }
         # --- bind
         if ($class->can('bind')) {
             bless $self, $class; # rebless trickery
-            @bind = $self->bind;
+            @bind = $self->bind(@_);
             bless $self, $self_class; # restore orig
         }
         else {
-            @bind = $self->bind;
+            @bind = $self->bind(@_);
         }
     }
     return ($stmt, @bind);

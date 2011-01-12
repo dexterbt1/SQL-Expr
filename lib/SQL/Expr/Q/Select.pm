@@ -73,7 +73,7 @@ sub stmt {
             if (ref($from) eq 'ARRAY') {
                 $from_clause = sprintf(
                     " FROM %s",
-                    join(", ", map { $_->stmt(@_) } @$from),
+                    join( ", ", map { $_->stmt(@_) } @$from),
                 );
             }
             else {
@@ -129,7 +129,7 @@ sub _str {
 
 sub name {
     my ($self) = @_;
-    return sprintf("( %s )", $self->stmt);
+    return $self->stmt(@_);
 }
 
 1;

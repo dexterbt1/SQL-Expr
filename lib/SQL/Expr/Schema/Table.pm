@@ -59,8 +59,10 @@ sub _refresh_name_to_column {
 }
 
 sub stmt {
-    my ($self) = @_;
-    $self->name;
+    my $self = shift @_;
+    my %kwargs = @_;
+    my $dbh = $kwargs{dbh};
+    return (defined $dbh) ? $dbh->quote_identifier($self->name) : $self->name;
 }
 
 sub bind {
@@ -101,65 +103,6 @@ sub add_column {
 #    my ($self) = @_;
 #    return SQL::Expr::Q::Select->new( -from => $self, -columns => [ $self->columns ] );
 #}
-
-package SQL::Expr::Schema::TableAlias;
-use strict;
-use Carp ();
-use Scalar::Util qw/weaken refaddr/;
-use base qw/SQL::Expr::Schema::Table/;
-
-sub _BUILD {
-    my $self = shift @_;
-    $self->SUPER::_BUILD(@_);
-    ($self->{table})
-        or Carp::croak("TableAlias requires a valid -table instance");
-    if (not $self->{as}) {
-        $self->{as} = "talias".refaddr($self);
-    }
-    # copy the columns from the table
-    my @columns_copy = ();
-    foreach my $c ($self->{table}->columns) {
-        if ($c->can('clone')) {
-            # Schema::Column objects are clonables, given their dependence on the parent
-            my $clone = $c->clone;
-            $clone->set_parent($self);
-            push @columns_copy, $clone;
-        }
-        else {
-            # otherwise, don't assume anything from column, accept as is
-            push @columns_copy, $c;
-        }
-    }
-    $self->{columns} = \@columns_copy;
-    $self->_refresh_name_to_column;
-    # override accessor
-    $self->{c_accessor} = bless( { t => $self }, 'SQL::Expr::Schema::Table::ColumnAccessor' );
-    weaken $self->{c_accessor}->{t};
-}
-
-sub add_column {
-    Carp::confess("Not supported. Cannot add column to an alias."); 
-}
-
-sub c {
-    my ($self) = @_;
-    return $self->{c_accessor};
-}
-
-sub name {
-    my ($self) = @_;
-    $self->{as};
-}
-
-sub stmt {
-    my $self = shift @_;
-    return sprintf("%s AS %s", $self->{table}->name, $self->name);
-}
-
-sub _str {
-    my ($self) = @_;
-    return $self->name;
-}
 
 
 1;

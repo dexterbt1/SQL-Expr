@@ -14,6 +14,7 @@ use SQL::Expr::Type::Boundable;
 use SQL::Expr::Type::Distinct;
 
 use SQL::Expr::Schema::Table;
+use SQL::Expr::Schema::TableAlias;
 use SQL::Expr::Schema::Column;
 use SQL::Expr::Schema::Join;
 

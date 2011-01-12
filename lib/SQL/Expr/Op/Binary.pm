@@ -15,7 +15,7 @@ sub _BUILD {
 }
 
 sub stmt {
-    my ($self) = @_;
+    my $self = shift @_;
     my ($a, $b) = ($self->{a}, $self->{b});
     my $stmt = sprintf("%s %s %s", 
         $a->stmt(@_),
@@ -26,10 +26,10 @@ sub stmt {
 }
 
 sub bind {
-    my ($self) = @_;
+    my $self = shift @_;
     my @b = ();
-    push @b, $self->{a}->bind;
-    push @b, $self->{b}->bind;
+    push @b, $self->{a}->bind(@_);
+    push @b, $self->{b}->bind(@_);
     return @b;
 }
 
@@ -144,18 +144,18 @@ sub _BUILD {
 }
 
 sub stmt {
-    my ($self) = @_;
+    my $self = shift @_;
     my ($a, $b) = ($self->{a}, $self->{b});
     my $stmt = sprintf("%s %s ( %s )",  # FIXME: we need the parenthesis, could this be factored out?
-        $a->stmt,
+        $a->stmt(@_),
         $self->op($a,$b),
-        $b->stmt,
+        $b->stmt(@_),
     );
     return $stmt;
 }
 
 sub _str { 
-    my ($self) = @_;
+    my $self = shift @_;
     my ($a, $b) = ($self->{a}, $self->{b});
     return sprintf("%s %s ( %s )", $a, $self->op($a,$b), $b); 
 }

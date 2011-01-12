@@ -3,11 +3,13 @@ use strict;
 use Test::More qw/no_plan/;
 use Test::Exception;
 use SQL::Expr qw/-all/;
+use DBI;
 
 my $s;
 my ($t, $tp);
 my ($a, $b);
 my ($stmt, @bind);
+my $dbh = DBI->connect("DBI:SQLite:dbname=:memory:","","",{RaiseError=>1});
 
 dies_ok { $s = SQL::Expr::Q::Select->new; } 'missing from or column_spec';
 dies_ok { $s = SQL::Expr::Q::Select->new( -from => undef ); } 'missing from or columns';
@@ -122,6 +124,12 @@ $s = SQL::Expr::Q::Select->new(
 );
 ($stmt, @bind) = $s->compile;
 is $stmt, 'SELECT b.id, b.user_id, b.bio FROM user_profile AS b WHERE b.user_id IN ( SELECT a.id FROM user AS a WHERE ( a.id >= ? ) )';
+is scalar(@bind), 1;
+is $bind[0], 123;
+
+# with dbh
+($stmt, @bind) = $s->compile( dbh => $dbh );
+is $stmt, 'SELECT "b"."id", "b"."user_id", "b"."bio" FROM "user_profile" AS b WHERE "b"."user_id" IN ( SELECT "a"."id" FROM "user" AS a WHERE ( a.id >= ? ) )';
 is scalar(@bind), 1;
 is $bind[0], 123;
 

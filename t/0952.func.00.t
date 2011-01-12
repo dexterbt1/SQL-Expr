@@ -16,6 +16,8 @@ my @test = (
     [ Count_(Distinct(1)), 'COUNT(DISTINCT ?)', 1 ],
     [ Count_(Distinct(Column('id'))), 'COUNT(DISTINCT id)' ],
     [ Count_(Distinct(Boundable(1) == Boundable(2))), 'COUNT(DISTINCT ? = ?)', 1, 2 ],
+    [ Count_(Distinct(Boundable(1) == Boundable(2)))->as('hello'), 'COUNT(DISTINCT ? = ?) AS hello', 1, 2 ],
+    [ Count_(\'id')->as('count_id'), 'COUNT(id) AS count_id' ],
 
     [ Avg_(undef), 'AVG(NULL)' ],
     [ Avg_('id'), 'AVG(?)', 'id' ],
@@ -42,7 +44,6 @@ my @test = (
     [ Max_(Distinct(Boundable(1) == Boundable(2))), 'MAX(DISTINCT ? = ?)', 1, 2 ],
 
     # aliases
-    ##[ Count_(\'id')->as('count_id'), 'COUNT(id) as count_id' ],
 );
 
 foreach (@test) {

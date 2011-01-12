@@ -3,6 +3,7 @@ use Test::More qw/no_plan/;
 use Test::Exception;
 use Scalar::Util qw/refaddr/;
 use SQL::Expr '-all';
+use DBI; # test w/ SQLite
 
 my $c;
 my $e;
@@ -13,6 +14,13 @@ is "$c", 'id';
 ($stmt, @bind) = $c->compile;
 is $stmt, 'id';
 is scalar(@bind), 0;
+
+# identifier
+my $dbh = DBI->connect("DBI:SQLite:dbname=:memory:","","",{RaiseError=>1});
+($stmt, @bind) = $c->compile( dbh => $dbh );
+is $stmt, '"id"';
+is scalar(@bind), 0;
+
 
 # schema info
 is $c->{name}, 'id';
@@ -42,6 +50,11 @@ $e = Column('name')->like("John%");
 is "$e", 'name LIKE "John%"';
 ($stmt, @bind) = $e->compile;
 is $stmt, 'name LIKE ?';
+is scalar(@bind), 1;
+is $bind[0], 'John%';
+
+($stmt, @bind) = $e->compile( dbh => $dbh );
+is $stmt, '"name" LIKE ?';
 is scalar(@bind), 1;
 is $bind[0], 'John%';
 

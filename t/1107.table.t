@@ -3,12 +3,16 @@ use strict;
 use Test::More qw/no_plan/;
 use Test::Exception;
 use SQL::Expr::Schema::Table;
+use SQL::Expr::Schema::TableAlias;
 use Scalar::Util qw/refaddr/;
+use DBI;
 
 my $table;
 my $a;
 my @columns;
 my ($stmt, @bind);
+
+my $dbh = DBI->connect("DBI:SQLite:dbname=:memory:","","",{RaiseError=>1});
 
 # NO args
 $table = SQL::Expr::Schema::Table->new;
@@ -66,6 +70,10 @@ is $table->c->name->{name}, 'name';
 # individual column stmt,bind
 ($stmt,@bind) = $table->c->id->compile;
 is $stmt, 'person.id';
+is scalar(@bind), 0;
+
+($stmt,@bind) = $table->c->name->compile( dbh => $dbh );
+is $stmt, '"person"."name"';
 is scalar(@bind), 0;
 
 ($stmt,@bind) = $table->c->name->compile;

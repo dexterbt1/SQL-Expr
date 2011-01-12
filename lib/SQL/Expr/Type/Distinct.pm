@@ -32,6 +32,11 @@ sub bind {
     return $self->{expr}->bind(@_);
 }
 
+sub _str { 
+    my $self = shift;
+    sprintf("DISTINCT %s", $self->{expr}->stmt(@_));
+}
+
 
 1;
 

@@ -14,16 +14,18 @@ sub _BUILD {
 }
 
 sub stmt {
-    my ($self) = @_;
-    return sprintf("%s AS %s", $self->{name}, $self->{alias});
+    my $self = shift @_;
+    return sprintf("%s AS %s", $self->{name}->stmt(@_), $self->{alias});
 }
 
 sub bind { 
+    my $self = shift @_;
+    return $self->{name}->bind(@_);
 }
 
 sub _str { 
     my ($self) = @_;
-    sprintf("%s AS %s", $self->{name}, $self->{alias});
+    sprintf("%s AS %s", $self->{name}->_str, $self->{alias});
 }
 
 1;

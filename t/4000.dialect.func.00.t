@@ -18,7 +18,7 @@ my @test = (
 
 foreach (@test) {
     my ($dialect, $e, $stmt, @bind) = @$_;
-    my ($got_stmt, @got_bind) = $e->compile( -dialect => $dialect );
+    my ($got_stmt, @got_bind) = $e->compile( dialect => $dialect );
     is $got_stmt, $stmt, "$dialect:$stmt";
     is_deeply [ @got_bind ], \@bind, "bind for $stmt";
 }
